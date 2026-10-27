@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PlaceCard } from "@/components/explore/PlaceCard";
 import { PlaceDetailDrawer } from "@/components/explore/PlaceDetailDrawer";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PlaceCardSkeleton } from "@/components/ui/loader-skeleton";
 import { getSavedPlaces } from "@/lib/api";
 import { CATEGORY_META } from "@/lib/utils";
 import type { Place, Category } from "@/types";
@@ -54,7 +55,6 @@ export default function SavedPage() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="font-serif text-4xl sm:text-5xl text-text mb-2">
-              <Heart className="inline mr-2 text-red-400 fill-red-400" size={36} />
               Saved places
             </h1>
             <p className="text-text-muted">Your favourite spots, all in one place.</p>
@@ -81,13 +81,13 @@ export default function SavedPage() {
                   <button
                     key={cat}
                     onClick={() => setActiveCategory(active ? "" : cat)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium border transition-all ${
+                    className={`px-3.5 py-1.5 rounded-full text-xs font-medium border transition-all ${
                       active
-                        ? "bg-forest text-white border-forest"
-                        : "bg-white text-text-muted border-border-theme hover:border-forest/30"
+                        ? "bg-forest text-white border-forest shadow-xs font-semibold"
+                        : "bg-white text-text-muted border-border-theme hover:border-forest/40 hover:text-text"
                     }`}
                   >
-                    {meta.emoji} {meta.label}
+                    {meta.label}
                   </button>
                 );
               })}
@@ -105,12 +105,12 @@ export default function SavedPage() {
           {loading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-[20px] border border-border-theme h-64 animate-pulse bg-sage/20" />
+                <PlaceCardSkeleton key={i} />
               ))}
             </div>
           ) : places.length === 0 ? (
             <EmptyState
-              emoji="❤️"
+              icon={<Heart size={26} className="text-forest" />}
               title="Nothing saved yet"
               description="Explore places and tap the heart icon to save your favourites here."
               actionLabel="Explore places"
@@ -118,7 +118,7 @@ export default function SavedPage() {
             />
           ) : filtered.length === 0 ? (
             <EmptyState
-              emoji="🔍"
+              icon={<Search size={26} className="text-forest" />}
               title="No matches"
               description="Try a different search or clear the filter."
               actionLabel="Clear"

@@ -63,7 +63,7 @@ export function PlaceCard({ place, onClick, onSaveToggle }: PlaceCardProps) {
         {/* Category badge */}
         <div className="absolute bottom-3 left-3">
           <Badge variant="category" colorClass={cat.color}>
-            {cat.emoji} {cat.label}
+            {cat.label}
           </Badge>
         </div>
       </div>

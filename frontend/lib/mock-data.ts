@@ -85,7 +85,7 @@ export const MOCK_PLACES: Place[] = [
     tags: ["park", "views", "lake", "peaceful"],
     coordinates: { lat: 48.8785, lng: 2.3821 },
     imageUrl:
-      "https://images.unsplash.com/photo-1544974514-b2ef8e21bb4a?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1511739001486-6bfe10ce785f?w=800&auto=format&fit=crop&q=80",
     rating: 4.7,
     reviewCount: 5629,
     estimatedVisitMinutes: 75,
@@ -102,7 +102,7 @@ export const MOCK_PLACES: Place[] = [
     tags: ["gothic", "stained glass", "medieval", "chapel"],
     coordinates: { lat: 48.8554, lng: 2.3451 },
     imageUrl:
-      "https://images.unsplash.com/photo-1612463572017-2dc3475fe9d3?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1549144511-f099e773c147?w=800&auto=format&fit=crop&q=80",
     rating: 4.7,
     reviewCount: 9874,
     estimatedVisitMinutes: 60,
@@ -156,7 +156,7 @@ export const MOCK_PLACES: Place[] = [
     tags: ["sushi", "seafood", "market", "local", "breakfast"],
     coordinates: { lat: 35.6655, lng: 139.7707 },
     imageUrl:
-      "https://images.unsplash.com/photo-1567159644558-6f18f88b9fa3?w=800&auto=format&fit=crop&q=80",
+      "https://images.unsplash.com/photo-1503899036084-c55cdd92da26?w=800&auto=format&fit=crop&q=80",
     rating: 4.7,
     reviewCount: 12300,
     estimatedVisitMinutes: 90,

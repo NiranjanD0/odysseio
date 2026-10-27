@@ -1,6 +1,8 @@
 /* All @import rules must be first */
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
   --cream:       #F8F3E9;
@@ -13,6 +15,19 @@
   --text:        #24352B;
   --text-muted:  #6D796F;
   --border:      #DEDCCF;
+}
+
+.dark {
+  --cream:       #101512;
+  --forest:      #4ca57c;
+  --forest-dark: #377d5d;
+  --sage:        #1b2820;
+  --peach:       #2b221d;
+  --lavender:    #221f2d;
+  --white:       #17201a;
+  --text:        #f2f7f3;
+  --text-muted:  #9db1a3;
+  --border:      #24362a;
 }
 
 /* ─── Tailwind v4 theme extension ─────────────────────────────────────────── */
@@ -47,6 +62,67 @@ body {
   color: var(--text);
   font-family: var(--font-sans, "DM Sans", system-ui, sans-serif);
   min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ─── Dark Mode Surface Overrides ─────────────────────────────────────────── */
+.dark body {
+  background-color: var(--cream);
+  color: var(--text);
+}
+
+.dark .bg-white {
+  background-color: var(--white);
+}
+
+.dark .bg-white\/80 {
+  background-color: rgba(23, 32, 26, 0.85);
+}
+
+.dark .bg-white\/90 {
+  background-color: rgba(23, 32, 26, 0.95);
+}
+
+.dark .bg-cream {
+  background-color: var(--cream);
+}
+
+.dark .bg-cream\/80 {
+  background-color: rgba(16, 21, 18, 0.85);
+}
+
+.dark .border-border-theme {
+  border-color: var(--border);
+}
+
+/* Form controls in dark mode */
+.dark input,
+.dark select,
+.dark textarea {
+  background-color: var(--white);
+  color: var(--text);
+  border-color: var(--border);
+}
+
+.dark select option {
+  background-color: var(--white);
+  color: var(--text);
+}
+
+/* Leaflet maps in dark mode */
+.dark .leaflet-tile-pane {
+  filter: brightness(0.85) invert(1) contrast(1.15) hue-rotate(185deg);
+}
+
+.dark .leaflet-container {
+  background-color: #101512 !important;
+}
+
+.dark .leaflet-popup-content-wrapper,
+.dark .leaflet-popup-tip {
+  background-color: var(--white) !important;
+  color: var(--text) !important;
+  border: 1px solid var(--border);
 }
 
 /* ─── Typography helpers ──────────────────────────────────────────────────── */

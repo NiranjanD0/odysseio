@@ -16,6 +16,7 @@ import { motion } from "motion/react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { Skeleton } from "@/components/ui/loader-skeleton";
 import { useToast } from "@/components/ui/Toast";
 import { getJourneys, deleteJourney, saveJourney } from "@/lib/api";
 import { formatDuration } from "@/lib/utils";
@@ -115,11 +116,12 @@ export default function JourneysPage() {
           {loading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {Array.from({ length: 3 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-[20px] border border-border-theme overflow-hidden animate-pulse">
-                  <div className="h-48 bg-sage/30" />
+                <div key={i} className="bg-white rounded-[20px] border border-border-theme overflow-hidden shadow-xs">
+                  <Skeleton className="h-48 w-full rounded-none" />
                   <div className="p-5 space-y-3">
-                    <div className="h-4 bg-sage/30 rounded w-3/4" />
-                    <div className="h-3 bg-sage/20 rounded w-1/2" />
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-3.5 w-1/2" />
+                    <Skeleton className="h-3 w-4/5" />
                   </div>
                 </div>
               ))}

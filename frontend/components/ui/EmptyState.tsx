@@ -3,6 +3,7 @@ import Link from "next/link";
 
 interface EmptyStateProps {
   emoji?: string;
+  icon?: React.ReactNode;
   title: string;
   description: string;
   actionLabel?: string;
@@ -11,7 +12,8 @@ interface EmptyStateProps {
 }
 
 export function EmptyState({
-  emoji = "🗺️",
+  emoji,
+  icon,
   title,
   description,
   actionLabel,
@@ -20,9 +22,19 @@ export function EmptyState({
 }: EmptyStateProps) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-20 px-6">
-      <span className="text-5xl mb-5" role="img" aria-label={title}>
-        {emoji}
-      </span>
+      {icon ? (
+        <div className="w-14 h-14 rounded-full bg-forest/10 dark:bg-forest/20 flex items-center justify-center mb-5 text-forest">
+          {icon}
+        </div>
+      ) : emoji ? (
+        <span className="text-5xl mb-5" role="img" aria-label={title}>
+          {emoji}
+        </span>
+      ) : (
+        <span className="text-5xl mb-5" role="img" aria-label={title}>
+          🗺️
+        </span>
+      )}
       <h3 className="font-serif text-2xl text-text mb-2">{title}</h3>
       <p className="text-sm text-text-muted max-w-xs leading-relaxed mb-6">{description}</p>
       {actionLabel && (
