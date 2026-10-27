@@ -39,6 +39,15 @@ async def search_places(
         target_coord = Coordinates(lat=lat, lng=lng)
     elif city:
         target_coord = CITY_COORDINATES.get(city.strip().lower())
+        if not target_coord:
+            try:
+                from app.integrations.geocoding import GeocodingClient
+                geo_client = GeocodingClient()
+                geo_results = await geo_client.forward(city.strip(), limit=1)
+                if geo_results:
+                    target_coord = geo_results[0].coordinates
+            except Exception:
+                pass
 
     if not target_coord:
         raise HTTPException(

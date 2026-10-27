@@ -71,15 +71,8 @@ export async function searchPlaces(
 
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data.places) && data.places.length > 0) {
-        // Ensure images are populated with curated fallbacks if blank
-        return data.places.map((p: Place, idx: number) => {
-          if (!p.imageUrl) {
-            const fallbackSeed = MOCK_PLACES[idx % MOCK_PLACES.length];
-            return { ...p, imageUrl: fallbackSeed.imageUrl };
-          }
-          return p;
-        });
+      if (Array.isArray(data.places)) {
+        return data.places;
       }
     }
   } catch {

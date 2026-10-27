@@ -95,15 +95,19 @@ export function SkeletonReveal({
 export function PlaceCardSkeleton() {
   return (
     <div className="bg-white dark:bg-white/5 rounded-[20px] border border-border-theme overflow-hidden shadow-xs">
-      <Skeleton className="h-48 w-full rounded-none" />
+      <div className="flex items-center justify-between p-4 pb-2 border-b border-border-theme/40">
+        <Skeleton className="h-5 w-20 rounded-full" />
+        <Skeleton className="h-6 w-6 rounded-full" />
+      </div>
       <div className="p-4 space-y-2.5">
-        <div className="flex items-center justify-between">
-          <Skeleton className="h-5 w-2/3" />
-          <Skeleton className="h-4 w-12 rounded-full" />
-        </div>
+        <Skeleton className="h-5 w-3/4" />
         <Skeleton className="h-3.5 w-1/2" />
         <Skeleton className="h-3 w-full" />
         <Skeleton className="h-3 w-4/5" />
+        <div className="flex items-center justify-between pt-1">
+          <Skeleton className="h-3.5 w-16" />
+          <Skeleton className="h-3.5 w-14" />
+        </div>
       </div>
     </div>
   );

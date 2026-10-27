@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { Heart, Star, Clock, MapPin } from "lucide-react";
 import { useState } from "react";
 import type { Place } from "@/types";
@@ -39,33 +38,21 @@ export function PlaceCard({ place, onClick, onSaveToggle }: PlaceCardProps) {
       role="button"
       aria-label={`View ${place.name}`}
     >
-      {/* Image */}
-      <div className="relative h-48 overflow-hidden">
-        <Image
-          src={place.imageUrl || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80"}
-          alt={place.name}
-          fill
-          className="object-cover group-hover:scale-105 transition-transform duration-300"
-          sizes="(max-width: 768px) 100vw, 380px"
-        />
-        {/* Save button */}
+      {/* Card Header (Category Badge + Save button) */}
+      <div className="flex items-center justify-between p-4 pb-2 border-b border-border-theme/40">
+        <Badge variant="category" colorClass={cat.color}>
+          {cat.label}
+        </Badge>
         <button
           onClick={handleSave}
           aria-label={saved ? "Unsave place" : "Save place"}
-          className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur-sm
-                     hover:bg-white transition-colors shadow-sm"
+          className="p-1.5 rounded-full hover:bg-sage/40 transition-colors"
         >
           <Heart
-            size={16}
+            size={18}
             className={saved ? "fill-red-500 text-red-500" : "text-text-muted"}
           />
         </button>
-        {/* Category badge */}
-        <div className="absolute bottom-3 left-3">
-          <Badge variant="category" colorClass={cat.color}>
-            {cat.label}
-          </Badge>
-        </div>
       </div>
 
       {/* Body */}
