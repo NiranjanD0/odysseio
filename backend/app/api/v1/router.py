@@ -2,6 +2,7 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     context,
+    geocode,
     health,
     itineraries,
     journeys,
@@ -13,6 +14,7 @@ from app.api.v1.endpoints import (
 api_router = APIRouter(prefix="/api/v1")
 
 api_router.include_router(health.router)
+api_router.include_router(geocode.router)
 api_router.include_router(places.router)
 api_router.include_router(context.router)
 api_router.include_router(itineraries.router)

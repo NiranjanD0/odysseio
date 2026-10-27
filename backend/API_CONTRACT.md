@@ -395,3 +395,91 @@ HTTP Status Codes:
 - `422 Unprocessable Content`: Itinerary infeasible or time window insufficient.
 - `502 Bad Gateway`: External provider error or outage.
 - `500 Internal Server Error`: Server failure.
+
+---
+
+## 5. Geocoding
+
+### 5.1 Forward Geocode
+**`GET /api/v1/geocode?q=<query>&limit=5`**
+
+Converts a free-text address or place name into coordinates. Powered by Geoapify Geocoding API.
+
+Response (`200 OK`):
+```json
+{
+  "query": "Paris, France",
+  "results": [
+    {
+      "placeId": "geo-paris-001",
+      "formatted": "Paris, Île-de-France, France",
+      "city": "Paris",
+      "country": "France",
+      "coordinates": { "lat": 48.8566, "lng": 2.3522 },
+      "confidence": 0.95
+    }
+  ]
+}
+```
+
+Curl:
+```bash
+curl "http://localhost:8000/api/v1/geocode?q=Eiffel+Tower+Paris"
+```
+
+### 5.2 Reverse Geocode
+**`GET /api/v1/geocode/reverse?lat=<lat>&lng=<lng>`**
+
+Converts coordinates into a human-readable address.
+
+Response (`200 OK`):
+```json
+{
+  "placeId": "geo-48.85660-2.35220",
+  "formatted": "Place du Trocadéro, Paris, France",
+  "city": "Paris",
+  "country": "France",
+  "coordinates": { "lat": 48.8566, "lng": 2.3522 }
+}
+```
+
+---
+
+## 6. Journey Status Update
+
+### 6.1 Update Status
+**`PATCH /api/v1/itineraries/{id}/status`**
+
+Transitions a journey through its lifecycle: `upcoming` → `in-progress` → `completed`.
+
+Request JSON:
+```json
+{ "status": "in-progress" }
+```
+
+Response (`200 OK`): Returns full `Itinerary` object with updated status.
+
+Curl:
+```bash
+curl -X PATCH http://localhost:8000/api/v1/itineraries/<id>/status \
+  -H "Content-Type: application/json" \
+  -d '{"status": "in-progress"}'
+```
+
+---
+
+## 7. GPX Export
+
+### 7.1 Export as GPX
+**`GET /api/v1/itineraries/{id}/export.gpx`**
+
+Downloads the itinerary as a GPX 1.1 file containing waypoints and a named route.
+Compatible with Google Maps, OsmAnd, Garmin devices, and any standard GPS app.
+
+Response: Binary `application/gpx+xml` with `Content-Disposition: attachment` header.
+
+Curl:
+```bash
+curl -o trip.gpx http://localhost:8000/api/v1/itineraries/<id>/export.gpx
+```
+

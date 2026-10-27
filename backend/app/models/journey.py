@@ -30,6 +30,7 @@ class JourneyModel(Base, TimestampMixin):
     total_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     exploration_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     travel_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    return_leg_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     interests: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
     status: Mapped[str] = mapped_column(String(50), default="upcoming", nullable=False)
