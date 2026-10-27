@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import { CurtainLink } from "@/components/ui/page-curtains";
 
 const YEAR = 2026;
 
@@ -32,9 +32,9 @@ export function Footer() {
               { href: "/saved", label: "Saved Places" },
             ].map(({ href, label }) => (
               <li key={href}>
-                <Link href={href} className="hover:text-white transition-colors">
+                <CurtainLink href={href} className="hover:text-white transition-colors">
                   {label}
-                </Link>
+                </CurtainLink>
               </li>
             ))}
           </ul>
@@ -44,7 +44,7 @@ export function Footer() {
         <div className="space-y-3">
           <h3 className="text-sm font-semibold text-white uppercase tracking-wider">About</h3>
           <ul className="space-y-2 text-sm">
-            <li><Link href="/settings" className="hover:text-white transition-colors">Settings</Link></li>
+            <li><CurtainLink href="/settings" className="hover:text-white transition-colors">Settings</CurtainLink></li>
             <li>
               <span className="text-white/50 text-xs bg-white/10 px-2 py-1 rounded-full">
                 Frontend Demo — Mock Data

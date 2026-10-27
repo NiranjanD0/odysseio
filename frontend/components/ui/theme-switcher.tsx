@@ -38,7 +38,7 @@ export function ThemeSwitcher({
       <div
         role="radiogroup"
         aria-label="Theme switcher"
-        className={`inline-flex items-center p-1 rounded-full bg-sage/30 dark:bg-black/30 border border-border-theme/60 text-xs font-medium text-text-muted ${className}`}
+        className={`inline-flex items-center p-1 rounded-full bg-sage/30 dark:bg-white/5 border border-border-theme text-xs font-medium text-text-muted ${className}`}
       >
         <button
           type="button"
@@ -47,7 +47,7 @@ export function ThemeSwitcher({
           onClick={() => setTheme("system")}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${
             currentTheme === "system"
-              ? "bg-white dark:bg-forest text-text shadow-sm font-semibold"
+              ? "bg-forest text-white shadow-xs font-semibold"
               : "hover:text-text"
           }`}
         >
@@ -61,7 +61,7 @@ export function ThemeSwitcher({
           onClick={() => setTheme("light")}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${
             currentTheme === "light"
-              ? "bg-white dark:bg-forest text-text shadow-sm font-semibold"
+              ? "bg-forest text-white shadow-xs font-semibold"
               : "hover:text-text"
           }`}
         >
@@ -75,7 +75,7 @@ export function ThemeSwitcher({
           onClick={() => setTheme("dark")}
           className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all ${
             currentTheme === "dark"
-              ? "bg-white dark:bg-forest text-text shadow-sm font-semibold"
+              ? "bg-forest text-white shadow-xs font-semibold"
               : "hover:text-text"
           }`}
         >
@@ -98,13 +98,13 @@ export function ThemeSwitcher({
     <button
       type="button"
       onClick={() => setTheme(nextTheme)}
-      className={`relative inline-flex items-center justify-center w-9 h-9 rounded-full bg-white/80 dark:bg-black/30 border border-border-theme/70 text-text hover:bg-sage/40 transition-colors shadow-xs ${className}`}
+      className={`relative inline-flex items-center justify-center w-9 h-9 rounded-full bg-white dark:bg-white/10 border border-border-theme text-text hover:bg-sage/40 dark:hover:bg-sage/20 transition-colors shadow-xs ${className}`}
       title={`Theme: ${currentTheme} (click to switch to ${nextTheme})`}
       aria-label={`Toggle theme, current is ${currentTheme}`}
     >
-      {currentTheme === "system" && <Laptop size={16} className="text-text" />}
-      {currentTheme === "light" && <Sun size={16} className="text-amber-500" />}
-      {currentTheme === "dark" && <Moon size={16} className="text-indigo-400" />}
+      {currentTheme === "system" && <Laptop size={15} className="text-text" />}
+      {currentTheme === "light" && <Sun size={15} className="text-amber-500" />}
+      {currentTheme === "dark" && <Moon size={15} className="text-emerald-400" />}
     </button>
   );
 }

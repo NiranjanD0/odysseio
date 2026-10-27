@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Map, Compass, Calendar, BookmarkCheck, Settings, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import { ThemeSwitcher } from "@/components/ui/theme-switcher";
+import { CurtainLink } from "@/components/ui/page-curtains";
 
 const NAV_LINKS = [
   { href: "/explore", label: "Explore", icon: Compass },
@@ -21,47 +21,47 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-30 bg-cream/80 backdrop-blur-md border-b border-border-theme">
+      <header className="sticky top-0 z-30 bg-cream/80 dark:bg-cream/80 backdrop-blur-md border-b border-border-theme">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
           {/* Logo */}
-          <Link
+          <CurtainLink
             href="/"
-            className="flex items-center gap-2 font-serif text-xl text-forest hover:opacity-80 transition-opacity"
+            className="flex items-center gap-2.5 font-serif text-xl tracking-tight text-forest dark:text-forest hover:opacity-85 transition-opacity"
             aria-label="ODYSSEIO home"
           >
-            <span className="text-2xl">✦</span>
-            <span>ODYSSEIO</span>
-          </Link>
+            <span className="text-xl text-forest">✦</span>
+            <span className="font-semibold tracking-wider">ODYSSEIO</span>
+          </CurtainLink>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1" role="navigation" aria-label="Main">
+          <nav className="hidden md:flex items-center gap-1.5" role="navigation" aria-label="Main">
             {NAV_LINKS.map(({ href, label }) => {
               const active = pathname.startsWith(href);
               return (
-                <Link
+                <CurtainLink
                   key={href}
                   href={href}
-                  className={`px-4 py-2 rounded-[12px] text-sm font-medium transition-all duration-150 ${
+                  className={`px-3.5 py-1.5 rounded-[12px] text-sm font-medium transition-all duration-150 ${
                     active
-                      ? "bg-forest text-white"
-                      : "text-text-muted hover:text-text hover:bg-sage/50"
+                      ? "bg-forest text-white shadow-xs"
+                      : "text-text-muted hover:text-text hover:bg-sage/40 dark:hover:bg-sage/20"
                   }`}
                 >
                   {label}
-                </Link>
+                </CurtainLink>
               );
             })}
           </nav>
 
-          {/* CTA + mobile toggle */}
+          {/* CTA + theme switcher + mobile toggle */}
           <div className="flex items-center gap-2.5">
             <ThemeSwitcher />
-            <Link
+            <CurtainLink
               href="/plan"
-              className="hidden sm:inline-flex items-center gap-2 bg-forest text-white px-4 py-2 rounded-[12px] text-sm font-medium hover:bg-forest-dark transition-colors"
+              className="hidden sm:inline-flex items-center gap-2 bg-forest text-white px-4 py-2 rounded-[12px] text-sm font-medium hover:bg-forest-dark transition-all shadow-xs"
             >
               Plan adventure
-            </Link>
+            </CurtainLink>
             <button
               className="md:hidden p-2 rounded-[10px] text-text-muted hover:bg-sage/50 transition-colors"
               onClick={() => setMobileOpen((v) => !v)}
@@ -82,34 +82,34 @@ export function Header() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="md:hidden fixed top-16 inset-x-0 z-20 bg-cream border-b border-border-theme overflow-hidden"
+            className="md:hidden fixed top-16 inset-x-0 z-20 bg-cream dark:bg-cream border-b border-border-theme overflow-hidden shadow-xl"
           >
-            <nav className="flex flex-col gap-1 p-4" role="navigation" aria-label="Mobile">
+            <nav className="flex flex-col gap-1.5 p-4" role="navigation" aria-label="Mobile">
               {NAV_LINKS.map(({ href, label, icon: Icon }) => {
                 const active = pathname.startsWith(href);
                 return (
-                  <Link
+                  <CurtainLink
                     key={href}
                     href={href}
                     onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-[12px] text-sm font-medium transition-all ${
                       active
-                        ? "bg-forest text-white"
-                        : "text-text hover:bg-sage/50"
+                        ? "bg-forest text-white shadow-xs"
+                        : "text-text hover:bg-sage/40 dark:hover:bg-sage/20"
                     }`}
                   >
                     <Icon size={18} />
                     {label}
-                  </Link>
+                  </CurtainLink>
                 );
               })}
-              <Link
+              <CurtainLink
                 href="/plan"
                 onClick={() => setMobileOpen(false)}
-                className="mt-2 flex items-center justify-center gap-2 bg-forest text-white px-4 py-3 rounded-[12px] text-sm font-medium hover:bg-forest-dark transition-colors"
+                className="mt-2 flex items-center justify-center gap-2 bg-forest text-white px-4 py-3 rounded-[12px] text-sm font-medium hover:bg-forest-dark transition-colors shadow-xs"
               >
                 Plan my adventure
-              </Link>
+              </CurtainLink>
             </nav>
           </motion.div>
         )}
