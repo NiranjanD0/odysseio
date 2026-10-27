@@ -55,7 +55,6 @@ export default function SavedPage() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="font-serif text-4xl sm:text-5xl text-text mb-2">
-              <Heart className="inline mr-2 text-red-400 fill-red-400" size={36} />
               Saved places
             </h1>
             <p className="text-text-muted">Your favourite spots, all in one place.</p>

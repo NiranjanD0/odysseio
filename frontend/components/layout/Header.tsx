@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Map, Compass, Calendar, BookmarkCheck, Settings, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import Image from "next/image";
 import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 import { CurtainLink } from "@/components/ui/page-curtains";
 
@@ -29,7 +30,14 @@ export function Header() {
             className="flex items-center gap-2.5 font-serif text-xl tracking-tight text-forest dark:text-forest hover:opacity-85 transition-opacity"
             aria-label="ODYSSEIO home"
           >
-            <span className="text-xl text-forest">✦</span>
+            <Image
+              src="/favicon-32x32.png"
+              alt="ODYSSEIO logo"
+              width={24}
+              height={24}
+              className="rounded-md object-contain"
+              priority
+            />
             <span className="font-semibold tracking-wider">ODYSSEIO</span>
           </CurtainLink>
 
