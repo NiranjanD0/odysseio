@@ -53,15 +53,9 @@ export function Header() {
             })}
           </nav>
 
-          {/* CTA + theme switcher + mobile toggle */}
-          <div className="flex items-center gap-2.5">
+          {/* Theme switcher + mobile toggle */}
+          <div className="flex items-center gap-2">
             <ThemeSwitcher />
-            <CurtainLink
-              href="/plan"
-              className="hidden sm:inline-flex items-center gap-2 bg-forest text-white px-4 py-2 rounded-[12px] text-sm font-medium hover:bg-forest-dark transition-all shadow-xs"
-            >
-              Plan adventure
-            </CurtainLink>
             <button
               className="md:hidden p-2 rounded-[10px] text-text-muted hover:bg-sage/50 transition-colors"
               onClick={() => setMobileOpen((v) => !v)}
@@ -103,13 +97,6 @@ export function Header() {
                   </CurtainLink>
                 );
               })}
-              <CurtainLink
-                href="/plan"
-                onClick={() => setMobileOpen(false)}
-                className="mt-2 flex items-center justify-center gap-2 bg-forest text-white px-4 py-3 rounded-[12px] text-sm font-medium hover:bg-forest-dark transition-colors shadow-xs"
-              >
-                Plan my adventure
-              </CurtainLink>
             </nav>
           </motion.div>
         )}

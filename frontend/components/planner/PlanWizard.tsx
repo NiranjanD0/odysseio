@@ -256,13 +256,13 @@ export function PlanWizard() {
                                     : [...field.value, cat]
                                 )
                               }
-                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium border transition-all ${
+                              className={`px-3.5 py-1.5 rounded-full text-sm font-medium border transition-all ${
                                 selected
-                                  ? "bg-forest text-white border-forest"
-                                  : "bg-white text-text-muted border-border-theme hover:border-forest/40 hover:bg-sage/20"
+                                  ? "bg-forest text-white border-forest shadow-xs font-semibold"
+                                  : "bg-white text-text-muted border-border-theme hover:border-forest/40 hover:text-text"
                               }`}
                             >
-                              {meta.emoji} {meta.label}
+                              {meta.label}
                             </button>
                           );
                         })}
