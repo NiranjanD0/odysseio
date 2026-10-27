@@ -1,16 +1,16 @@
-# ODYSSEIA
+# ODYSSEIO
 
 **Every minute, a new story.**
 
-ODYSSEIA is an intelligent city-exploration companion designed for travelers who arrive in an unfamiliar city with limited time. It helps them discover interesting places, build a time-aware itinerary, and explore confidently while keeping their return deadline in mind.
+ODYSSEIO is an intelligent city-exploration companion designed for travelers who arrive in an unfamiliar city with limited time. It helps them discover interesting places, build a time-aware itinerary, and explore confidently while keeping their return deadline in mind.
 
 > A little time. A whole new world.
 
 ## Overview
 
-Planning a short visit to an unfamiliar city can be overwhelming. There may be dozens of places worth seeing, but only a few hours to explore them. ODYSSEIA turns that limited time into a practical, personalized adventure.
+Planning a short visit to an unfamiliar city can be overwhelming. There may be dozens of places worth seeing, but only a few hours to explore them. ODYSSEIO turns that limited time into a practical, personalized adventure.
 
-Travelers can provide their starting point, available time, return destination, interests, preferred pace, and transportation mode. ODYSSEIA can then discover relevant places, estimate travel time, organize stops into an itinerary, and help replan when circumstances change.
+Travelers can provide their starting point, available time, return destination, interests, preferred pace, and transportation mode. ODYSSEIO can then discover relevant places, estimate travel time, organize stops into an itinerary, and help replan when circumstances change.
 
 ## Key Features
 
@@ -32,13 +32,13 @@ Feature availability depends on the APIs and services configured for the deploym
 1. **Set your starting point.** Choose a city and starting location, plus a return destination when needed.
 2. **Set your time limit.** Provide a start time, return deadline, and preferred safety buffer.
 3. **Choose your adventure.** Select interests, pace, and transportation preferences.
-4. **Discover places.** ODYSSEIA retrieves relevant points of interest from configured data providers.
+4. **Discover places.** ODYSSEIO retrieves relevant points of interest from configured data providers.
 5. **Build an itinerary.** The itinerary engine evaluates place relevance and route durations to produce a schedule that fits the available time.
 6. **Explore and adapt.** View the route, mark stops as completed, skip places, or replan the remaining journey.
 
 ## Design Philosophy
 
-ODYSSEIA uses a consistent, warm visual identity inspired by travel journals and modern editorial design.
+ODYSSEIO uses a consistent, warm visual identity inspired by travel journals and modern editorial design.
 
 - **Oat cream:** `#F8F3E9`
 - **Forest green:** `#315B48`
@@ -80,7 +80,7 @@ The final versions and exact dependencies should match the implementation in the
 
 ## External APIs and Services
 
-ODYSSEIA is designed to integrate with the following services:
+ODYSSEIO is designed to integrate with the following services:
 
 | Service | Intended use |
 | --- | --- |
@@ -95,7 +95,7 @@ These are intended integrations, not a claim that every service is already confi
 
 ## Itinerary Planning Principles
 
-ODYSSEIA should account for the complete journey, not just the time spent at attractions.
+ODYSSEIO should account for the complete journey, not just the time spent at attractions.
 
 The itinerary time budget includes:
 
@@ -126,7 +126,7 @@ Keep credentials and deployment-specific settings in environment variables. Do n
 Common configuration values may include:
 
 ```dotenv
-DATABASE_URL=jdbc:postgresql://localhost:5432/odysseia
+DATABASE_URL=jdbc:postgresql://localhost:5432/odysseio
 DB_USERNAME=postgres
 DB_PASSWORD=replace-me
 GEOAPIFY_API_KEY=replace-me
@@ -206,4 +206,4 @@ Choose and add a license before distributing the project publicly. Until a licen
 
 ---
 
-**ODYSSEIA — Every minute, a new story.**
+**ODYSSEIO — Every minute, a new story.**
