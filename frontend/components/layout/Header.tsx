@@ -23,19 +23,19 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-30 bg-cream/80 dark:bg-cream/80 backdrop-blur-md border-b border-border-theme">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+        <div className="w-full px-4 sm:px-6 lg:px-8 flex items-center justify-between min-h-[4.25rem] py-2">
           {/* Logo */}
           <CurtainLink
             href="/"
-            className="flex items-center gap-2.5 font-serif text-xl tracking-tight text-forest dark:text-forest hover:opacity-85 transition-opacity"
+            className="flex items-center gap-2.5 font-serif text-2xl tracking-tight text-forest dark:text-forest hover:opacity-85 transition-opacity"
             aria-label="ODYSSEIO home"
           >
             <Image
               src="/apple-touch-icon.png"
               alt="ODYSSEIO logo"
-              width={32}
-              height={32}
-              className="rounded-lg object-contain w-8 h-8"
+              width={64}
+              height={64}
+              className="rounded-lg object-contain w-12 h-12 sm:w-14 sm:h-14"
               priority
             />
             <span className="font-semibold tracking-wider">ODYSSEIO</span>
