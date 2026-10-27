@@ -18,6 +18,18 @@ async def list_journeys(
     return await repo.list_journeys(limit=limit, offset=offset)
 
 
+@router.put("/{id}", response_model=Itinerary)
+async def update_journey(
+    id: str,
+    itinerary: Itinerary,
+    db: AsyncSession = Depends(get_db),
+):
+    if itinerary.id != id:
+        itinerary.id = id
+    repo = JourneyRepository(db)
+    return await repo.save_journey(itinerary)
+
+
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_journey(
     id: str,

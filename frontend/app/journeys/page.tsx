@@ -75,8 +75,10 @@ export default function JourneysPage() {
   );
 
   const filtered = filter === "all" ? journeys : journeys.filter((j) => j.status === filter);
-  const cover = (itin: Itinerary) =>
-    itin.stops[0]?.place.imageUrl ?? MOCK_PLACES[0].imageUrl;
+  const cover = (itin: Itinerary) => {
+    const stopImg = itin.stops.find((s) => s.place.imageUrl && s.place.imageUrl.trim() !== "")?.place.imageUrl;
+    return stopImg || MOCK_PLACES[0].imageUrl;
+  };
 
   return (
     <>

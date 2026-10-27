@@ -21,7 +21,7 @@ const dmSerifDisplay = DM_Serif_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: "ODYSSEIO — Every minute, a new story",
+    default: "Odysseio",
     template: "%s | ODYSSEIO",
   },
   description:
@@ -58,6 +58,7 @@ export default function RootLayout({
     <html
       lang="en"
       suppressHydrationWarning
+      data-scroll-behavior="smooth"
       className={`${dmSans.variable} ${dmSerifDisplay.variable} h-full`}
     >
       <body className="min-h-full flex flex-col antialiased bg-cream dark:bg-cream text-text dark:text-text">

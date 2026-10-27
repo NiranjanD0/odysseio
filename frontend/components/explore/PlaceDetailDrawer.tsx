@@ -29,8 +29,8 @@ export function PlaceDetailDrawer({
 
   const cat = CATEGORY_META[place.category];
 
-  const handleSave = () => {
-    const next = toggleSavedPlace(place.id);
+  const handleSave = async () => {
+    const next = await toggleSavedPlace(place);
     setSaved(next);
     toast(next ? `Saved ${place.name}` : `Removed from saved`, next ? "success" : "info");
   };
@@ -40,7 +40,7 @@ export function PlaceDetailDrawer({
       {/* Hero image */}
       <div className="relative h-56">
         <Image
-          src={place.imageUrl}
+          src={place.imageUrl || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80"}
           alt={place.name}
           fill
           className="object-cover"
