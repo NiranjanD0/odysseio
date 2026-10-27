@@ -42,7 +42,7 @@ export function PlaceCard({ place, onClick, onSaveToggle }: PlaceCardProps) {
       {/* Image */}
       <div className="relative h-48 overflow-hidden">
         <Image
-          src={place.imageUrl}
+          src={place.imageUrl || "https://images.unsplash.com/photo-1502602898657-3e91760cbb34?w=800&auto=format&fit=crop&q=80"}
           alt={place.name}
           fill
           className="object-cover group-hover:scale-105 transition-transform duration-300"
