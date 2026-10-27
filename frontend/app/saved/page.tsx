@@ -111,7 +111,7 @@ export default function SavedPage() {
             </div>
           ) : places.length === 0 ? (
             <EmptyState
-              emoji="❤️"
+              icon={<Heart size={26} className="text-forest" />}
               title="Nothing saved yet"
               description="Explore places and tap the heart icon to save your favourites here."
               actionLabel="Explore places"
@@ -119,7 +119,7 @@ export default function SavedPage() {
             />
           ) : filtered.length === 0 ? (
             <EmptyState
-              emoji="🔍"
+              icon={<Search size={26} className="text-forest" />}
               title="No matches"
               description="Try a different search or clear the filter."
               actionLabel="Clear"
