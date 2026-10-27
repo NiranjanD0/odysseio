@@ -22,7 +22,7 @@ It discovers real points of interest, calculates real route distances and travel
 ## Directory Structure
 
 ```
-odysseio-backend/
+backend/
 ├── app/
 │   ├── main.py                  # FastAPI entry point, lifespan, CORS & exception handlers
 │   ├── api/
@@ -102,7 +102,7 @@ odysseio-backend/
 
 ### 2. Install Dependencies
 ```bash
-cd odysseio-backend
+cd backend
 
 # Create virtual environment
 uv venv
