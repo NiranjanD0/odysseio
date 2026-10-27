@@ -42,5 +42,32 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
+# python & backend
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+.venv/
+*/.venv/
+env/
+venv/
+ENV/
+.pytest_cache/
+*/.pytest_cache/
+.ruff_cache/
+*/.ruff_cache/
+.coverage
+htmlcov/
+
+# sqlite & local databases
+*.db
+*.sqlite3
+odysseio.db
+backend/odysseio.db
+
 # graphify
 graphify-out/
