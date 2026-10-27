@@ -55,6 +55,7 @@ class JourneyRepository:
             totalMinutes=model.total_minutes,
             explorationMinutes=model.exploration_minutes,
             travelMinutes=model.travel_minutes,
+            returnLegMinutes=model.return_leg_minutes,
             interests=model.interests,
             status=model.status,
             createdAt=model.created_at.isoformat() if model.created_at else "",
@@ -86,6 +87,7 @@ class JourneyRepository:
                 total_minutes=itinerary.totalMinutes,
                 exploration_minutes=itinerary.explorationMinutes,
                 travel_minutes=itinerary.travelMinutes,
+                return_leg_minutes=itinerary.returnLegMinutes,
                 interests=list(itinerary.interests),
                 status=itinerary.status,
                 center_lat=itinerary.centerCoordinates.lat,
@@ -109,6 +111,7 @@ class JourneyRepository:
             model.total_minutes = itinerary.totalMinutes
             model.exploration_minutes = itinerary.explorationMinutes
             model.travel_minutes = itinerary.travelMinutes
+            model.return_leg_minutes = itinerary.returnLegMinutes
             model.interests = list(itinerary.interests)
             model.status = itinerary.status
             model.warnings = itinerary.warnings
