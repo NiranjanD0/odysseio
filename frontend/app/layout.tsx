@@ -1,7 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { DM_Sans, DM_Serif_Display } from "next/font/google";
 import "./globals.css";
-import { ToastProvider } from "@/components/ui/Toast";
+import { ToastProvider } from "@/components/ui/Notifications";
+import { ThemeProvider } from "@/components/theme-provider";
+import { PageCurtains } from "@/components/ui/page-curtains";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
@@ -44,10 +46,20 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      suppressHydrationWarning
       className={`${dmSans.variable} ${dmSerifDisplay.variable} h-full`}
     >
-      <body className="min-h-full flex flex-col antialiased">
-        <ToastProvider>{children}</ToastProvider>
+      <body className="min-h-full flex flex-col antialiased bg-cream dark:bg-cream text-text dark:text-text">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <ToastProvider>
+            <PageCurtains>{children}</PageCurtains>
+          </ToastProvider>
+        </ThemeProvider>
       </body>
     </html>
   );

@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { Map, Compass, Calendar, BookmarkCheck, Settings, Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
+import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 
 const NAV_LINKS = [
   { href: "/explore", label: "Explore", icon: Compass },
@@ -53,7 +54,8 @@ export function Header() {
           </nav>
 
           {/* CTA + mobile toggle */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5">
+            <ThemeSwitcher />
             <Link
               href="/plan"
               className="hidden sm:inline-flex items-center gap-2 bg-forest text-white px-4 py-2 rounded-[12px] text-sm font-medium hover:bg-forest-dark transition-colors"

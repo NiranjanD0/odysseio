@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { PlaceCard } from "@/components/explore/PlaceCard";
 import { PlaceDetailDrawer } from "@/components/explore/PlaceDetailDrawer";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { PlaceCardSkeleton } from "@/components/ui/loader-skeleton";
 import { getSavedPlaces } from "@/lib/api";
 import { CATEGORY_META } from "@/lib/utils";
 import type { Place, Category } from "@/types";
@@ -105,7 +106,7 @@ export default function SavedPage() {
           {loading ? (
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
               {Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="bg-white rounded-[20px] border border-border-theme h-64 animate-pulse bg-sage/20" />
+                <PlaceCardSkeleton key={i} />
               ))}
             </div>
           ) : places.length === 0 ? (

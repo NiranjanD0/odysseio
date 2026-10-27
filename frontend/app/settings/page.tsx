@@ -8,6 +8,7 @@ import { Footer } from "@/components/layout/Footer";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Input";
 import { useToast } from "@/components/ui/Toast";
+import { ThemeSwitcher } from "@/components/ui/theme-switcher";
 import {
   getUserPreferences,
   saveUserPreferences,
@@ -165,6 +166,17 @@ export default function SettingsPage() {
                 <option value={20}>20 minutes</option>
                 <option value={30}>30 minutes</option>
               </Select>
+            </section>
+
+            {/* Appearance / Theme */}
+            <section className="bg-white rounded-[20px] border border-border-theme p-6 space-y-3">
+              <div>
+                <h2 className="font-semibold text-text">Appearance & theme</h2>
+                <p className="text-xs text-text-muted mt-0.5">
+                  Choose between light, dark, or system default mode.
+                </p>
+              </div>
+              <ThemeSwitcher variant="segmented" />
             </section>
 
             {/* Save */}
