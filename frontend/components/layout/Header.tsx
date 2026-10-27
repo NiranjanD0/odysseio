@@ -31,14 +31,14 @@ export function Header() {
 
   return (
     <Navbar>
-      {/* Desktop Navigation that dynamically shrinks & blurs on scroll */}
+      {/* Desktop Navigation that dynamically shrinks & blurs into a floating pill on scroll */}
       <NavBody>
         <NavbarLogo />
         <NavItems items={NAV_ITEMS} />
-        <div className="flex items-center gap-3">
+        <div className="flex shrink-0 items-center gap-2 sm:gap-2.5">
           <ThemeSwitcher />
           <NavbarButton href="/plan" as={CurtainLink} variant="primary">
-            <Plus size={14} />
+            <Plus size={13} />
             <span>New Trip</span>
           </NavbarButton>
         </div>
@@ -61,25 +61,38 @@ export function Header() {
           isOpen={isMobileMenuOpen}
           onClose={() => setIsMobileMenuOpen(false)}
         >
-          {NAV_ITEMS.map((item) => {
-            const active = pathname.startsWith(item.link);
-            const Icon = item.icon;
-            return (
-              <CurtainLink
-                key={item.link}
-                href={item.link}
-                onClick={() => setIsMobileMenuOpen(false)}
-                className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
-                  active
-                    ? "bg-forest text-white"
-                    : "text-text-muted hover:text-text hover:bg-sage/40"
-                }`}
-              >
-                <Icon size={16} />
-                <span>{item.name}</span>
-              </CurtainLink>
-            );
-          })}
+          <div className="w-full flex flex-col gap-1">
+            {NAV_ITEMS.map((item) => {
+              const active = pathname.startsWith(item.link);
+              const Icon = item.icon;
+              return (
+                <CurtainLink
+                  key={item.link}
+                  href={item.link}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-colors ${
+                    active
+                      ? "bg-forest text-white shadow-xs font-semibold"
+                      : "text-text-muted hover:text-text hover:bg-sage/40"
+                  }`}
+                >
+                  <Icon size={16} />
+                  <span>{item.name}</span>
+                </CurtainLink>
+              );
+            })}
+          </div>
+
+          <div className="pt-2 mt-1 border-t border-border-theme/60 w-full">
+            <CurtainLink
+              href="/plan"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-forest text-white text-sm font-semibold shadow-xs hover:bg-forest-dark transition-colors"
+            >
+              <Plus size={16} />
+              <span>New Trip</span>
+            </CurtainLink>
+          </div>
         </MobileNavMenu>
       </MobileNav>
     </Navbar>
