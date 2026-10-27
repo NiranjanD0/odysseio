@@ -29,8 +29,8 @@ export function PlaceDetailDrawer({
 
   const cat = CATEGORY_META[place.category];
 
-  const handleSave = () => {
-    const next = toggleSavedPlace(place.id);
+  const handleSave = async () => {
+    const next = await toggleSavedPlace(place);
     setSaved(next);
     toast(next ? `Saved ${place.name}` : `Removed from saved`, next ? "success" : "info");
   };

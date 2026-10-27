@@ -21,7 +21,7 @@ const dmSerifDisplay = DM_Serif_Display({
 
 export const metadata: Metadata = {
   title: {
-    default: "ODYSSEIO — Every minute, a new story",
+    default: "Odysseio",
     template: "%s | ODYSSEIO",
   },
   description:

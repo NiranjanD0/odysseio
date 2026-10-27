@@ -6,7 +6,7 @@ from app.core.errors import ProviderException
 from app.integrations.geoapify import GeoapifyClient
 from app.repositories.saved_place_repo import SavedPlaceRepository
 from app.schemas.common import Category, Coordinates
-from app.schemas.places import PlacesResponse
+from app.schemas.places import Place, PlacesResponse
 
 router = APIRouter(prefix="/places", tags=["Places"])
 
@@ -85,3 +85,18 @@ async def search_places(
         p.isSaved = await saved_repo.is_saved(p.id)
 
     return PlacesResponse(places=places, count=len(places), source="geoapify")
+
+
+@router.get("/{id}", response_model=Place)
+async def get_place_by_id(
+    id: str,
+    db: AsyncSession = Depends(get_db),
+):
+    saved_repo = SavedPlaceRepository(db)
+    saved_places = await saved_repo.list_saved()
+    for sp in saved_places:
+        if sp.id == id:
+            sp.isSaved = True
+            return sp
+
+    raise HTTPException(status_code=404, detail=f"Place '{id}' not found.")

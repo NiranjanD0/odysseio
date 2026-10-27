@@ -1,9 +1,8 @@
 /**
  * ODYSSEIO Frontend API / Service Layer
  *
- * All functions currently use mock data and localStorage for persistence.
- * The interface is designed so that, once the backend team delivers an agreed
- * API contract, the implementations can be swapped out without touching the UI.
+ * Full integration with the ODYSSEIO FastAPI Backend (http://localhost:8000/api/v1).
+ * Gracefully falls back to local storage and curated seeds if the backend is unavailable.
  */
 
 import {
@@ -19,6 +18,9 @@ import type {
   PlanWizardValues,
   UserPreferences,
 } from "@/types";
+
+const BACKEND_URL =
+  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
 
 // ─── Storage helpers ────────────────────────────────────────────────────────
 
@@ -56,7 +58,35 @@ export async function searchPlaces(
   city: string = "",
   categories: string[] = []
 ): Promise<Place[]> {
-  await delay(200);
+  try {
+    const params = new URLSearchParams();
+    if (city) params.set("city", city);
+    else params.set("city", "Paris"); // default anchor if no city specified
+    if (query) params.set("query", query);
+    if (categories.length > 0) params.set("categories", categories.join(","));
+
+    const res = await fetch(`${BACKEND_URL}/places?${params.toString()}`, {
+      cache: "no-store",
+    });
+
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data.places) && data.places.length > 0) {
+        // Ensure images are populated with curated fallbacks if blank
+        return data.places.map((p: Place, idx: number) => {
+          if (!p.imageUrl) {
+            const fallbackSeed = MOCK_PLACES[idx % MOCK_PLACES.length];
+            return { ...p, imageUrl: fallbackSeed.imageUrl };
+          }
+          return p;
+        });
+      }
+    }
+  } catch {
+    // Backend offline; use resilient fallback
+  }
+
+  // Fallback to local mock dataset
   const savedIds = getSavedPlaceIds();
   return MOCK_PLACES.filter((p) => {
     const q = query.toLowerCase();
@@ -65,7 +95,7 @@ export async function searchPlaces(
       p.name.toLowerCase().includes(q) ||
       p.description.toLowerCase().includes(q) ||
       p.tags.some((t) => t.includes(q));
-    const matchesCity = !city || p.city === city;
+    const matchesCity = !city || p.city.toLowerCase() === city.toLowerCase();
     const matchesCat =
       categories.length === 0 || categories.includes(p.category);
     return matchesQuery && matchesCity && matchesCat;
@@ -73,7 +103,17 @@ export async function searchPlaces(
 }
 
 export async function getPlaceById(id: string): Promise<Place | null> {
-  await delay(100);
+  try {
+    const res = await fetch(`${BACKEND_URL}/places/${encodeURIComponent(id)}`, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // Fall back to local search
+  }
+
   const savedIds = getSavedPlaceIds();
   const place = MOCK_PLACES.find((p) => p.id === id) ?? null;
   return place ? { ...place, isSaved: savedIds.includes(place.id) } : null;
@@ -85,15 +125,75 @@ function getSavedPlaceIds(): string[] {
   return lsGet<string[]>(KEYS.savedPlaces, []);
 }
 
-export function toggleSavedPlace(placeId: string): boolean {
+export async function toggleSavedPlace(
+  placeOrId: Place | string
+): Promise<boolean> {
+  const targetPlace: Place | null =
+    typeof placeOrId === "string"
+      ? (MOCK_PLACES.find((p) => p.id === placeOrId) ?? {
+          id: placeOrId,
+          name: "Saved Location",
+          city: "Paris",
+          country: "France",
+          description: "",
+          category: "culture",
+          tags: [],
+          coordinates: { lat: 48.8566, lng: 2.3522 },
+          imageUrl: "",
+          rating: 4.5,
+          reviewCount: 10,
+          estimatedVisitMinutes: 30,
+          address: "",
+          isSaved: true,
+        })
+      : placeOrId;
+
+  // Local sync first
   const ids = getSavedPlaceIds();
-  const isSaved = ids.includes(placeId);
-  lsSet(KEYS.savedPlaces, isSaved ? ids.filter((id) => id !== placeId) : [...ids, placeId]);
-  return !isSaved;
+  const isSaved = ids.includes(targetPlace.id);
+  const nextSaved = !isSaved;
+  lsSet(
+    KEYS.savedPlaces,
+    nextSaved
+      ? [...ids, targetPlace.id]
+      : ids.filter((id) => id !== targetPlace.id)
+  );
+
+  // Sync to FastAPI Backend
+  try {
+    await fetch(`${BACKEND_URL}/saved-places`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ place: targetPlace, notes: "" }),
+    });
+  } catch {
+    // If backend unreachable, local sync succeeded
+  }
+
+  return nextSaved;
 }
 
 export async function getSavedPlaces(): Promise<Place[]> {
-  await delay(150);
+  try {
+    const res = await fetch(`${BACKEND_URL}/saved-places`, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const places: Place[] = await res.json();
+      if (Array.isArray(places) && places.length > 0) {
+        // Sync local storage ids
+        lsSet(KEYS.savedPlaces, places.map((p) => p.id));
+        return places.map((p, idx) => ({
+          ...p,
+          imageUrl: p.imageUrl || MOCK_PLACES[idx % MOCK_PLACES.length].imageUrl,
+          isSaved: true,
+        }));
+      }
+    }
+  } catch {
+    // Backend offline; use local storage fallback
+  }
+
   const ids = getSavedPlaceIds();
   return MOCK_PLACES.filter((p) => ids.includes(p.id)).map((p) => ({
     ...p,
@@ -104,32 +204,77 @@ export async function getSavedPlaces(): Promise<Place[]> {
 // ─── Destinations ──────────────────────────────────────────────────────────
 
 export async function getDestinations(): Promise<Destination[]> {
-  await delay(150);
   return MOCK_DESTINATIONS;
 }
 
 export async function getDestinationByCity(
   city: string
 ): Promise<Destination | null> {
-  await delay(100);
-  return MOCK_DESTINATIONS.find((d) => d.city === city) ?? null;
+  return (
+    MOCK_DESTINATIONS.find(
+      (d) => d.city.toLowerCase() === city.toLowerCase()
+    ) ?? null
+  );
+}
+
+// ─── Environmental Context ─────────────────────────────────────────────────
+
+export async function getEnvironmentalContext(lat: number, lng: number) {
+  try {
+    const res = await fetch(
+      `${BACKEND_URL}/context?lat=${lat}&lng=${lng}`,
+      { cache: "no-store" }
+    );
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // Not critical
+  }
+  return null;
 }
 
 // ─── Itineraries / Journeys ────────────────────────────────────────────────
 
 export async function getJourneys(): Promise<Itinerary[]> {
-  await delay(200);
+  try {
+    const res = await fetch(`${BACKEND_URL}/journeys?limit=50&offset=0`, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      const backendJourneys: Itinerary[] = await res.json();
+      if (Array.isArray(backendJourneys) && backendJourneys.length > 0) {
+        return backendJourneys.sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        );
+      }
+    }
+  } catch {
+    // Fall back to local storage
+  }
+
   const stored = lsGet<Itinerary[]>(KEYS.journeys, []);
-  // Merge stored with mock seeds (mock seeds only if not already overridden)
   const storedIds = new Set(stored.map((j) => j.id));
   const seeds = MOCK_ITINERARIES.filter((m) => !storedIds.has(m.id));
   return [...seeds, ...stored].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    (a, b) =>
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 }
 
 export async function getItinerary(id: string): Promise<Itinerary | null> {
-  await delay(150);
+  try {
+    const res = await fetch(`${BACKEND_URL}/itineraries/${encodeURIComponent(id)}`, {
+      cache: "no-store",
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // Backend offline; look up in local storage
+  }
+
   const journeys = await getJourneys();
   return journeys.find((j) => j.id === id) ?? null;
 }
@@ -137,20 +282,77 @@ export async function getItinerary(id: string): Promise<Itinerary | null> {
 export async function generateItinerary(
   values: PlanWizardValues
 ): Promise<Itinerary> {
-  await delay(500); // simulate processing
+  const dest =
+    MOCK_DESTINATIONS.find(
+      (d) => d.city.toLowerCase() === values.destination.toLowerCase()
+    ) ?? MOCK_DESTINATIONS[0];
 
-  const dest = MOCK_DESTINATIONS.find((d) => d.city === values.destination);
-  const availableMinutes = timeToMinutes(values.returnTime) - timeToMinutes(values.startTime) - values.safetyBufferMinutes;
+  const payload = {
+    destination: values.destination,
+    startLocation: values.startLocation || "City centre",
+    startCoordinates: dest.coordinates,
+    returnLocation: values.startLocation || "City centre",
+    returnCoordinates: dest.coordinates,
+    startTime: values.startTime,
+    returnTime: values.returnTime,
+    safetyBufferMinutes: values.safetyBufferMinutes,
+    interests: values.interests,
+    pace: values.pace,
+    transport: values.transport,
+  };
 
-  // Filter places by interests / city
+  try {
+    const res = await fetch(`${BACKEND_URL}/itineraries`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    if (res.ok) {
+      const liveItinerary: Itinerary = await res.json();
+      // Ensure each stop has a valid image
+      liveItinerary.stops = liveItinerary.stops.map((stop, i) => {
+        if (!stop.place.imageUrl) {
+          const fallback = MOCK_PLACES[i % MOCK_PLACES.length];
+          return {
+            ...stop,
+            place: { ...stop.place, imageUrl: fallback.imageUrl },
+          };
+        }
+        return stop;
+      });
+
+      // Mirror to local storage
+      const stored = lsGet<Itinerary[]>(KEYS.journeys, []);
+      lsSet(KEYS.journeys, [
+        liveItinerary,
+        ...stored.filter((j) => j.id !== liveItinerary.id),
+      ]);
+      return liveItinerary;
+    }
+  } catch {
+    // Backend unreachable; use local fallback algorithm below
+  }
+
+  // Local fallback algorithm
+  const availableMinutes =
+    timeToMinutes(values.returnTime) -
+    timeToMinutes(values.startTime) -
+    values.safetyBufferMinutes;
+
   const candidates = MOCK_PLACES.filter(
     (p) =>
-      p.city === values.destination &&
-      (values.interests.length === 0 || values.interests.includes(p.category as never))
+      p.city.toLowerCase() === values.destination.toLowerCase() &&
+      (values.interests.length === 0 ||
+        values.interests.includes(p.category as never))
   );
 
-  // Simple greedy scheduler
-  const travelPerLeg = values.transport === "walking" ? 15 : values.transport === "cycling" ? 8 : 12;
+  const travelPerLeg =
+    values.transport === "walking"
+      ? 15
+      : values.transport === "cycling"
+      ? 8
+      : 12;
   let remaining = availableMinutes;
   let currentTime = timeToMinutes(values.startTime);
   const stops: ItineraryStop[] = [];
@@ -176,7 +378,13 @@ export async function generateItinerary(
   const id = `itin-${Date.now()}`;
   const itinerary: Itinerary = {
     id,
-    title: `${values.pace === "packed" ? "Packed" : values.pace === "relaxed" ? "Relaxed" : "Balanced"} Day in ${values.destination}`,
+    title: `${
+      values.pace === "packed"
+        ? "Packed"
+        : values.pace === "relaxed"
+        ? "Relaxed"
+        : "Balanced"
+    } Day in ${values.destination}`,
     city: values.destination,
     date: new Date().toISOString().split("T")[0],
     startTime: values.startTime,
@@ -185,7 +393,10 @@ export async function generateItinerary(
     pace: values.pace,
     transport: values.transport,
     totalMinutes: availableMinutes,
-    explorationMinutes: stops.reduce((acc, s) => acc + s.place.estimatedVisitMinutes, 0),
+    explorationMinutes: stops.reduce(
+      (acc, s) => acc + s.place.estimatedVisitMinutes,
+      0
+    ),
     travelMinutes: stops.reduce((acc, s) => acc + s.travelTimeFromPrev, 0),
     interests: values.interests,
     status: "upcoming",
@@ -194,14 +405,13 @@ export async function generateItinerary(
     stops,
   };
 
-  // Persist
   const stored = lsGet<Itinerary[]>(KEYS.journeys, []);
   lsSet(KEYS.journeys, [itinerary, ...stored]);
-
   return itinerary;
 }
 
 export async function saveJourney(itinerary: Itinerary): Promise<void> {
+  // Sync locally
   const stored = lsGet<Itinerary[]>(KEYS.journeys, []);
   const exists = stored.findIndex((j) => j.id === itinerary.id);
   if (exists !== -1) {
@@ -210,24 +420,78 @@ export async function saveJourney(itinerary: Itinerary): Promise<void> {
     stored.unshift(itinerary);
   }
   lsSet(KEYS.journeys, stored);
+
+  // Sync to Backend
+  try {
+    await fetch(`${BACKEND_URL}/journeys/${encodeURIComponent(itinerary.id)}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(itinerary),
+    });
+  } catch {
+    // Backend offline; local update is intact
+  }
 }
 
 export async function deleteJourney(id: string): Promise<void> {
-  await delay(200);
+  // Local deletion
   const stored = lsGet<Itinerary[]>(KEYS.journeys, []);
   lsSet(KEYS.journeys, stored.filter((j) => j.id !== id));
+
+  // Sync to Backend
+  try {
+    await fetch(`${BACKEND_URL}/journeys/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+    });
+  } catch {
+    // Local deletion was already completed
+  }
 }
 
 export async function replanItinerary(
   itinerary: Itinerary,
   remainingMinutes: number
 ): Promise<Itinerary> {
-  await delay(400);
+  const completedStopIds = itinerary.stops
+    .filter((s) => s.status === "completed")
+    .map((s) => s.id);
+  const skippedStopIds = itinerary.stops
+    .filter((s) => s.status === "skipped")
+    .map((s) => s.id);
 
+  try {
+    const res = await fetch(
+      `${BACKEND_URL}/itineraries/${encodeURIComponent(itinerary.id)}/replan`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          completedStopIds,
+          skippedStopIds,
+          remainingMinutes: Math.max(5, remainingMinutes),
+          currentCoordinates: itinerary.centerCoordinates,
+          updatedPace: itinerary.pace,
+          updatedTransport: itinerary.transport,
+        }),
+      }
+    );
+
+    if (res.ok) {
+      const updated: Itinerary = await res.json();
+      await saveJourney(updated);
+      return updated;
+    }
+  } catch {
+    // Backend offline; fallback to local replanner
+  }
+
+  // Local replan fallback
   const updatedStops = itinerary.stops.filter(
     (s) => s.status === "completed" || s.status === "skipped"
   );
-  const pendingStops = itinerary.stops.filter((s) => s.status === "upcoming" || s.status === "current");
+  const pendingStops = itinerary.stops.filter(
+    (s) => s.status === "upcoming" || s.status === "current"
+  );
 
   let remaining = remainingMinutes;
   let currentTime = timeToMinutes(new Date().toTimeString().slice(0, 5));
@@ -239,15 +503,47 @@ export async function replanItinerary(
     } else {
       remaining -= needed;
       const arrival = minutesToTime(currentTime + stop.travelTimeFromPrev);
-      const departure = minutesToTime(currentTime + stop.travelTimeFromPrev + stop.place.estimatedVisitMinutes);
+      const departure = minutesToTime(
+        currentTime + stop.travelTimeFromPrev + stop.place.estimatedVisitMinutes
+      );
       currentTime += stop.travelTimeFromPrev + stop.place.estimatedVisitMinutes;
-      updatedStops.push({ ...stop, arrivalTime: arrival, departureTime: departure });
+      updatedStops.push({
+        ...stop,
+        arrivalTime: arrival,
+        departureTime: departure,
+      });
     }
   }
 
   const updated: Itinerary = { ...itinerary, stops: updatedStops };
   await saveJourney(updated);
   return updated;
+}
+
+// ─── Telegram Notifications ────────────────────────────────────────────────
+
+export async function sendTelegramNotification(
+  itineraryId: string,
+  chatId?: string,
+  customMessage?: string
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/notifications/telegram`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        itineraryId,
+        chatId: chatId || undefined,
+        customMessage: customMessage || undefined,
+      }),
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // Offline
+  }
+  return { success: false, message: "Could not send Telegram notification." };
 }
 
 // ─── Preferences ──────────────────────────────────────────────────────────
@@ -275,10 +571,6 @@ export function resetDemoData(): void {
 }
 
 // ─── Utils ─────────────────────────────────────────────────────────────────
-
-function delay(ms: number): Promise<void> {
-  return new Promise((r) => setTimeout(r, ms));
-}
 
 function timeToMinutes(time: string): number {
   const [h, m] = time.split(":").map(Number);

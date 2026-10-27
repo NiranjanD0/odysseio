@@ -20,9 +20,9 @@ export function PlaceCard({ place, onClick, onSaveToggle }: PlaceCardProps) {
   const [saved, setSaved] = useState(place.isSaved ?? false);
   const cat = CATEGORY_META[place.category];
 
-  const handleSave = (e: React.MouseEvent) => {
+  const handleSave = async (e: React.MouseEvent) => {
     e.stopPropagation();
-    const next = toggleSavedPlace(place.id);
+    const next = await toggleSavedPlace(place);
     setSaved(next);
     toast(next ? `Saved ${place.name}` : `Removed ${place.name} from saved`, next ? "success" : "info");
     onSaveToggle?.(place, next);
