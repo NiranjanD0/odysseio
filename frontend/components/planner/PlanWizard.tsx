@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, Controller } from "react-hook-form";
+import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "motion/react";
@@ -58,7 +58,6 @@ export function PlanWizard() {
     register,
     control,
     handleSubmit,
-    watch,
     formState: { errors },
     trigger,
   } = useForm<FormValues>({
@@ -75,13 +74,16 @@ export function PlanWizard() {
     },
   });
 
-  const watchAll = watch();
+  const watchAll = useWatch({ control });
+  const startTime = watchAll.startTime ?? "09:00";
+  const returnTime = watchAll.returnTime ?? "13:00";
+  const safetyBufferMinutes = watchAll.safetyBufferMinutes ?? 15;
 
   // Available time calc
   const availableMinutes = (() => {
-    const [sh, sm] = watchAll.startTime.split(":").map(Number);
-    const [rh, rm] = watchAll.returnTime.split(":").map(Number);
-    return Math.max(0, (rh * 60 + rm) - (sh * 60 + sm) - watchAll.safetyBufferMinutes);
+    const [sh, sm] = startTime.split(":").map(Number);
+    const [rh, rm] = returnTime.split(":").map(Number);
+    return Math.max(0, (rh * 60 + rm) - (sh * 60 + sm) - safetyBufferMinutes);
   })();
 
   const validateStep = async () => {
@@ -334,14 +336,14 @@ export function PlanWizard() {
                 <h2 className="font-serif text-2xl text-text">Your adventure at a glance</h2>
                 <div className="space-y-3">
                   {[
-                    { label: "Destination", value: watchAll.destination },
-                    { label: "Starting from", value: watchAll.startLocation },
-                    { label: "Start time", value: watchAll.startTime },
-                    { label: "Return by", value: watchAll.returnTime },
+                    { label: "Destination", value: watchAll.destination || "Not set" },
+                    { label: "Starting from", value: watchAll.startLocation || "City centre" },
+                    { label: "Start time", value: startTime },
+                    { label: "Return by", value: returnTime },
                     { label: "Available time", value: formatDuration(availableMinutes) },
-                    { label: "Safety buffer", value: `${watchAll.safetyBufferMinutes} min` },
-                    { label: "Pace", value: watchAll.pace.charAt(0).toUpperCase() + watchAll.pace.slice(1) },
-                    { label: "Transport", value: watchAll.transport.charAt(0).toUpperCase() + watchAll.transport.slice(1) },
+                    { label: "Safety buffer", value: `${safetyBufferMinutes} min` },
+                    { label: "Pace", value: (watchAll.pace ?? "balanced").charAt(0).toUpperCase() + (watchAll.pace ?? "balanced").slice(1) },
+                    { label: "Transport", value: (watchAll.transport ?? "walking").charAt(0).toUpperCase() + (watchAll.transport ?? "walking").slice(1) },
                   ].map(({ label, value }) => (
                     <div key={label} className="flex justify-between text-sm border-b border-border-theme pb-2">
                       <span className="text-text-muted">{label}</span>
@@ -351,7 +353,7 @@ export function PlanWizard() {
                   <div className="pt-1">
                     <p className="text-sm text-text-muted mb-2">Interests</p>
                     <div className="flex flex-wrap gap-1">
-                      {watchAll.interests.map((i) => (
+                      {(watchAll.interests ?? []).map((i) => (
                         <span
                           key={i}
                           className="text-xs bg-sage text-forest px-2.5 py-1 rounded-full font-medium"
