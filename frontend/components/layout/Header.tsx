@@ -31,11 +31,11 @@ export function Header() {
             aria-label="ODYSSEIO home"
           >
             <Image
-              src="/favicon-32x32.png"
+              src="/apple-touch-icon.png"
               alt="ODYSSEIO logo"
-              width={24}
-              height={24}
-              className="rounded-md object-contain"
+              width={32}
+              height={32}
+              className="rounded-lg object-contain w-8 h-8"
               priority
             />
             <span className="font-semibold tracking-wider">ODYSSEIO</span>
