@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 
+const YEAR = 2026;
+
 export function Footer() {
-  const year = 2026;
+  const year = YEAR;
   return (
     <footer className="mt-auto bg-forest text-white/80">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">

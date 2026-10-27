@@ -1,27 +1,38 @@
-@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=DM+Serif+Display:ital@0;1&display=swap");
+/* All @import rules must be first */
 @import "tailwindcss";
 
 /* ─── Design tokens ──────────────────────────────────────────────────────── */
 :root {
-  --cream:      #F8F3E9;
-  --forest:     #315B48;
-  --forest-dark:#234035;
-  --sage:       #DDEBDD;
-  --peach:      #F5DCCF;
-  --lavender:   #E8E1F3;
-  --white:      #FFFFFF;
-  --text:       #24352B;
-  --text-muted: #6D796F;
-  --border:     #DEDCCF;
-  --shadow-sm:  0 1px 3px 0 rgba(49, 91, 72, 0.08);
-  --shadow-md:  0 4px 16px 0 rgba(49, 91, 72, 0.12);
-  --shadow-lg:  0 8px 32px 0 rgba(49, 91, 72, 0.16);
-  --radius-card: 20px;
-  --radius-btn:  12px;
-  --radius-pill: 999px;
+  --cream:       #F8F3E9;
+  --forest:      #315B48;
+  --forest-dark: #234035;
+  --sage:        #DDEBDD;
+  --peach:       #F5DCCF;
+  --lavender:    #E8E1F3;
+  --white:       #FFFFFF;
+  --text:        #24352B;
+  --text-muted:  #6D796F;
+  --border:      #DEDCCF;
 }
 
-/* ─── Base ───────────────────────────────────────────────────────────────── */
+/* ─── Tailwind v4 theme extension ─────────────────────────────────────────── */
+@theme inline {
+  --color-cream:        var(--cream);
+  --color-forest:       var(--forest);
+  --color-forest-dark:  var(--forest-dark);
+  --color-sage:         var(--sage);
+  --color-peach:        var(--peach);
+  --color-lavender:     var(--lavender);
+  --color-text:         var(--text);
+  --color-text-muted:   var(--text-muted);
+  --color-border-theme: var(--border);
+
+  /* Fonts are injected via Next.js layout; expose variable references here */
+  --font-sans:  var(--font-dm-sans, "DM Sans", system-ui, sans-serif);
+  --font-serif: var(--font-dm-serif, "DM Serif Display", Georgia, serif);
+}
+
+/* ─── Base ────────────────────────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
 }
@@ -34,37 +45,16 @@ html {
 body {
   background: var(--cream);
   color: var(--text);
-  font-family: "DM Sans", system-ui, sans-serif;
+  font-family: var(--font-sans, "DM Sans", system-ui, sans-serif);
   min-height: 100vh;
 }
 
-/* ─── Tailwind v4 theme extension ──────────────────────────────────────────
-   Expose design tokens as Tailwind utility classes.                         */
-@theme inline {
-  --color-cream:      var(--cream);
-  --color-forest:     var(--forest);
-  --color-forest-dark: var(--forest-dark);
-  --color-sage:       var(--sage);
-  --color-peach:      var(--peach);
-  --color-lavender:   var(--lavender);
-  --color-text:       var(--text);
-  --color-text-muted: var(--text-muted);
-  --color-border-theme: var(--border);
-
-  --font-sans:   "DM Sans", system-ui, sans-serif;
-  --font-serif:  "DM Serif Display", Georgia, serif;
-
-  --radius-card: var(--radius-card);
-  --radius-btn:  var(--radius-btn);
-  --radius-pill: var(--radius-pill);
-}
-
-/* ─── Typography helpers ─────────────────────────────────────────────────── */
+/* ─── Typography helpers ──────────────────────────────────────────────────── */
 .font-serif {
-  font-family: "DM Serif Display", Georgia, serif;
+  font-family: var(--font-serif, "DM Serif Display", Georgia, serif);
 }
 
-/* ─── Scrollbar ──────────────────────────────────────────────────────────── */
+/* ─── Scrollbar ───────────────────────────────────────────────────────────── */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -77,13 +67,13 @@ body {
   border-radius: 99px;
 }
 
-/* ─── Focus visible ──────────────────────────────────────────────────────── */
+/* ─── Focus visible ───────────────────────────────────────────────────────── */
 :focus-visible {
   outline: 2px solid var(--forest);
   outline-offset: 2px;
 }
 
-/* ─── Leaflet z-index fixes ──────────────────────────────────────────────── */
+/* ─── Leaflet z-index fixes ───────────────────────────────────────────────── */
 .leaflet-pane {
   z-index: 0 !important;
 }
@@ -92,18 +82,18 @@ body {
   z-index: 10 !important;
 }
 
-/* ─── Reduced motion ─────────────────────────────────────────────────────── */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
-  }
-}
-
-/* ─── Custom scrollable itinerary panel ──────────────────────────────────── */
+/* ─── Thin scrollbar for itinerary panel ──────────────────────────────────── */
 .thin-scroll::-webkit-scrollbar {
   width: 4px;
 }
 .thin-scroll::-webkit-scrollbar-thumb {
   background: var(--sage);
+}
+
+/* ─── Reduced motion ──────────────────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }

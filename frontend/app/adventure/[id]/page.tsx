@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback, Suspense } from "react";
 import { useParams, useRouter } from "next/navigation";
-import dynamic from "next/dynamic";
+import nextDynamic from "next/dynamic";
 import {
   Clock,
   ChevronLeft,
@@ -23,7 +23,7 @@ import { formatDuration, formatTime, getRemainingTime } from "@/lib/utils";
 import type { Itinerary, ItineraryStop } from "@/types";
 
 // Dynamically load map to avoid SSR issues
-const AdventureMap = dynamic(
+const AdventureMap = nextDynamic(
   () =>
     import("@/components/adventure/AdventureMap").then((m) => m.AdventureMap),
   { ssr: false, loading: () => <div className="w-full h-full bg-sage/20 rounded-[20px] flex items-center justify-center text-text-muted text-sm">Loading map…</div> }
@@ -285,14 +285,16 @@ function AdventureContent() {
 
 export default function AdventurePage() {
   return (
-    <Suspense fallback={
-      <div className="flex h-screen items-center justify-center bg-cream">
-        <div className="text-center space-y-3">
-          <span className="text-4xl animate-pulse block">🗺️</span>
-          <p className="text-text-muted text-sm">Loading adventure…</p>
+    <Suspense
+      fallback={
+        <div className="flex h-screen items-center justify-center bg-cream">
+          <div className="text-center space-y-3">
+            <span className="text-4xl animate-pulse block">🗺️</span>
+            <p className="text-text-muted text-sm">Loading adventure…</p>
+          </div>
         </div>
-      </div>
-    }>
+      }
+    >
       <AdventureContent />
     </Suspense>
   );
