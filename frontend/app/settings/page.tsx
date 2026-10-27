@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Save, RotateCcw, AlertTriangle } from "lucide-react";
 import { motion } from "motion/react";
 import { Header } from "@/components/layout/Header";
@@ -15,23 +15,23 @@ import {
 } from "@/lib/api";
 import { CATEGORY_META } from "@/lib/utils";
 import type { Category, Pace, Transport, UserPreferences } from "@/types";
-import type { Metadata } from "next";
 
 const CATEGORIES = Object.keys(CATEGORY_META) as Category[];
 
 export default function SettingsPage() {
   const { toast } = useToast();
-  const [prefs, setPrefs] = useState<UserPreferences>({
-    pace: "balanced",
-    transport: "walking",
-    interests: ["food", "culture"],
-    safetyBufferMinutes: 15,
+  const [prefs, setPrefs] = useState<UserPreferences>(() => {
+    if (typeof window !== "undefined") {
+      return getUserPreferences();
+    }
+    return {
+      pace: "balanced",
+      transport: "walking",
+      interests: ["food", "culture"],
+      safetyBufferMinutes: 15,
+    };
   });
   const [saved, setSaved] = useState(false);
-
-  useEffect(() => {
-    setPrefs(getUserPreferences());
-  }, []);
 
   const toggle = (cat: Category) =>
     setPrefs((p) => ({

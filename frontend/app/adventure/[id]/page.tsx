@@ -7,8 +7,6 @@ import {
   Clock,
   ChevronLeft,
   RotateCcw,
-  CheckCircle,
-  SkipForward,
   AlertTriangle,
 } from "lucide-react";
 import { Header } from "@/components/layout/Header";

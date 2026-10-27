@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { Heart, Star, Clock, MapPin, Navigation, Plus, ExternalLink } from "lucide-react";
+import { Heart, Star, Clock, MapPin, Plus, ExternalLink } from "lucide-react";
 import { useState } from "react";
 import type { Place } from "@/types";
 import { CATEGORY_META, formatDuration, formatTime } from "@/lib/utils";

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { Heart, Search, X } from "lucide-react";
 import { motion } from "motion/react";
 import { Header } from "@/components/layout/Header";
@@ -16,30 +16,31 @@ const CATEGORIES = Object.keys(CATEGORY_META) as Category[];
 
 export default function SavedPage() {
   const [places, setPlaces] = useState<Place[]>([]);
-  const [filtered, setFiltered] = useState<Place[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<Category | "">("");
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
 
-  const load = async () => {
-    setLoading(true);
-    const data = await getSavedPlaces();
-    setPlaces(data);
-    setLoading(false);
-  };
-
-  useEffect(() => { load(); }, []);
-
   useEffect(() => {
+    let mounted = true;
+    getSavedPlaces().then((data) => {
+      if (mounted) {
+        setPlaces(data);
+        setLoading(false);
+      }
+    });
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  const filtered = useMemo(() => {
     const q = query.toLowerCase();
-    setFiltered(
-      places.filter((p) => {
-        const matchQ = !q || p.name.toLowerCase().includes(q);
-        const matchCat = !activeCategory || p.category === activeCategory;
-        return matchQ && matchCat;
-      })
-    );
+    return places.filter((p) => {
+      const matchQ = !q || p.name.toLowerCase().includes(q);
+      const matchCat = !activeCategory || p.category === activeCategory;
+      return matchQ && matchCat;
+    });
   }, [places, query, activeCategory]);
 
   const handleSaveToggle = useCallback((place: Place, saved: boolean) => {

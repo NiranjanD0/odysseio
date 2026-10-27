@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import {
@@ -15,8 +15,6 @@ import {
 import { motion } from "motion/react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
-import { Button } from "@/components/ui/Button";
-import { Badge } from "@/components/ui/Badge";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { useToast } from "@/components/ui/Toast";
 import { getJourneys, deleteJourney, saveJourney } from "@/lib/api";
@@ -36,34 +34,44 @@ export default function JourneysPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<JourneyStatus | "all">("all");
 
-  const load = async () => {
-    setLoading(true);
-    const data = await getJourneys();
-    setJourneys(data);
-    setLoading(false);
-  };
-
-  useEffect(() => { load(); }, []);
-
-  const handleDelete = async (id: string, title: string) => {
-    if (!confirm(`Delete "${title}"?`)) return;
-    await deleteJourney(id);
-    setJourneys((prev) => prev.filter((j) => j.id !== id));
-    toast(`Deleted "${title}"`, "info");
-  };
-
-  const handleDuplicate = async (itinerary: Itinerary) => {
-    const copy: Itinerary = {
-      ...itinerary,
-      id: `itin-copy-${Date.now()}`,
-      title: `Copy of ${itinerary.title}`,
-      status: "upcoming",
-      createdAt: new Date().toISOString(),
+  useEffect(() => {
+    let mounted = true;
+    getJourneys().then((data) => {
+      if (mounted) {
+        setJourneys(data);
+        setLoading(false);
+      }
+    });
+    return () => {
+      mounted = false;
     };
-    await saveJourney(copy);
-    setJourneys((prev) => [copy, ...prev]);
-    toast("Journey duplicated", "success");
-  };
+  }, []);
+
+  const handleDelete = useCallback(
+    async (id: string, title: string) => {
+      if (!confirm(`Delete "${title}"?`)) return;
+      await deleteJourney(id);
+      setJourneys((prev) => prev.filter((j) => j.id !== id));
+      toast(`Deleted "${title}"`, "info");
+    },
+    [toast]
+  );
+
+  const handleDuplicate = useCallback(
+    async (itinerary: Itinerary) => {
+      const copy: Itinerary = {
+        ...itinerary,
+        id: `itin-copy-${Date.now()}`,
+        title: `Copy of ${itinerary.title}`,
+        status: "upcoming",
+        createdAt: new Date().toISOString(),
+      };
+      await saveJourney(copy);
+      setJourneys((prev) => [copy, ...prev]);
+      toast("Journey duplicated", "success");
+    },
+    [toast]
+  );
 
   const filtered = filter === "all" ? journeys : journeys.filter((j) => j.status === filter);
   const cover = (itin: Itinerary) =>
