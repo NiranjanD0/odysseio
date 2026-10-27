@@ -11,6 +11,7 @@ import {
   Copy,
   Trash2,
   CheckCircle2,
+  RotateCcw,
 } from "lucide-react";
 import { motion } from "motion/react";
 import { Header } from "@/components/layout/Header";
@@ -18,7 +19,7 @@ import { Footer } from "@/components/layout/Footer";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Skeleton } from "@/components/ui/loader-skeleton";
 import { useToast } from "@/components/ui/Toast";
-import { getJourneys, deleteJourney, saveJourney } from "@/lib/api";
+import { getJourneys, deleteJourney, saveJourney, resetDemoData } from "@/lib/api";
 import { formatDuration } from "@/lib/utils";
 import type { Itinerary, JourneyStatus } from "@/types";
 import { MOCK_PLACES } from "@/lib/mock-data";
@@ -74,6 +75,14 @@ export default function JourneysPage() {
     [toast]
   );
 
+  const handleReset = useCallback(async () => {
+    if (!confirm("Reset all journeys to default demo seeds?")) return;
+    resetDemoData();
+    const fresh = await getJourneys();
+    setJourneys(fresh);
+    toast("Journeys reset to demo defaults", "info");
+  }, [toast]);
+
   const filtered = filter === "all" ? journeys : journeys.filter((j) => j.status === filter);
   const cover = (itin: Itinerary) => {
     const stopImg = itin.stops.find((s) => s.place.imageUrl && s.place.imageUrl.trim() !== "")?.place.imageUrl;
@@ -90,12 +99,22 @@ export default function JourneysPage() {
               <h1 className="font-serif text-4xl sm:text-5xl text-text mb-2">My journeys</h1>
               <p className="text-text-muted">Your adventures, past and future.</p>
             </div>
-            <Link
-              href="/plan"
-              className="hidden sm:inline-flex items-center gap-2 bg-forest text-white px-5 py-2.5 rounded-[12px] text-sm font-medium hover:bg-forest-dark transition-colors"
-            >
-              + New adventure
-            </Link>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={handleReset}
+                className="hidden sm:inline-flex items-center gap-1.5 px-3 py-2 rounded-[12px] border border-border-theme text-xs text-text-muted hover:text-text hover:bg-cream transition-colors"
+                title="Reset demo journeys"
+              >
+                <RotateCcw size={13} />
+                Reset demo data
+              </button>
+              <Link
+                href="/plan"
+                className="hidden sm:inline-flex items-center gap-2 bg-forest text-white px-5 py-2.5 rounded-[12px] text-sm font-medium hover:bg-forest-dark transition-colors"
+              >
+                + New adventure
+              </Link>
+            </div>
           </div>
 
           {/* Filter tabs */}

@@ -26,6 +26,7 @@ function ExploreContent() {
   const [query, setQuery] = useState("");
   const [city, setCity] = useState(cityParam);
   const [activeCategories, setActiveCategories] = useState<Category[]>([]);
+  const [durationFilter, setDurationFilter] = useState<string>("all");
   const [selectedPlace, setSelectedPlace] = useState<Place | null>(null);
   const [destinations, setDestinations] = useState<Destination[]>([]);
 
@@ -49,6 +50,14 @@ function ExploreContent() {
     setActiveCategories((prev) =>
       prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
     );
+
+  const displayedPlaces = places.filter((p) => {
+    if (durationFilter === "quick") return p.estimatedVisitMinutes <= 30;
+    if (durationFilter === "medium")
+      return p.estimatedVisitMinutes > 30 && p.estimatedVisitMinutes <= 60;
+    if (durationFilter === "long") return p.estimatedVisitMinutes > 60;
+    return true;
+  });
 
   return (
     <>
@@ -89,7 +98,7 @@ function ExploreContent() {
 
           {/* Search + filters */}
           <div className="bg-white rounded-[20px] border border-border-theme p-4 mb-6 space-y-4">
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
                 <input
@@ -101,17 +110,30 @@ function ExploreContent() {
                   className="w-full rounded-[12px] border border-border-theme bg-cream pl-9 pr-4 py-2.5 text-sm text-text placeholder:text-text-muted focus:outline-2 focus:outline-forest"
                 />
               </div>
-              <select
-                id="explore-city-filter"
-                value={city}
-                onChange={(e) => setCity(e.target.value)}
-                className="rounded-[12px] border border-border-theme bg-cream px-3 py-2.5 text-sm text-text focus:outline-2 focus:outline-forest"
-              >
-                <option value="">All cities</option>
-                {destinations.map((d) => (
-                  <option key={d.id} value={d.city}>{d.city}</option>
-                ))}
-              </select>
+              <div className="flex gap-2">
+                <select
+                  id="explore-city-filter"
+                  value={city}
+                  onChange={(e) => setCity(e.target.value)}
+                  className="rounded-[12px] border border-border-theme bg-cream px-3 py-2.5 text-sm text-text focus:outline-2 focus:outline-forest"
+                >
+                  <option value="">All cities</option>
+                  {destinations.map((d) => (
+                    <option key={d.id} value={d.city}>{d.city}</option>
+                  ))}
+                </select>
+                <select
+                  id="explore-duration-filter"
+                  value={durationFilter}
+                  onChange={(e) => setDurationFilter(e.target.value)}
+                  className="rounded-[12px] border border-border-theme bg-cream px-3 py-2.5 text-sm text-text focus:outline-2 focus:outline-forest"
+                >
+                  <option value="all">Any duration</option>
+                  <option value="quick">&le; 30 mins</option>
+                  <option value="medium">30–60 mins</option>
+                  <option value="long">&gt; 60 mins</option>
+                </select>
+              </div>
             </div>
             {/* Category chips */}
             <div className="flex flex-wrap gap-2">
@@ -132,12 +154,17 @@ function ExploreContent() {
                   </button>
                 );
               })}
-              {activeCategories.length > 0 && (
+              {(activeCategories.length > 0 || durationFilter !== "all" || query || city) && (
                 <button
-                  onClick={() => setActiveCategories([])}
+                  onClick={() => {
+                    setQuery("");
+                    setCity("");
+                    setActiveCategories([]);
+                    setDurationFilter("all");
+                  }}
                   className="flex items-center gap-1 px-3 py-1.5 rounded-full text-xs text-text-muted hover:text-text border border-border-theme transition-colors"
                 >
-                  <X size={11} /> Clear
+                  <X size={11} /> Clear all
                 </button>
               )}
             </div>
@@ -150,22 +177,28 @@ function ExploreContent() {
                 <PlaceCardSkeleton key={i} />
               ))}
             </div>
-          ) : places.length === 0 ? (
+          ) : displayedPlaces.length === 0 ? (
             <EmptyState
               emoji="🔍"
               title="No places found"
               description="Try adjusting your search or clearing some filters."
               actionLabel="Clear filters"
-              onAction={() => { setQuery(""); setCity(""); setActiveCategories([]); }}
+              onAction={() => {
+                setQuery("");
+                setCity("");
+                setActiveCategories([]);
+                setDurationFilter("all");
+              }}
             />
           ) : (
             <>
               <p className="text-xs text-text-muted mb-4">
-                {places.length} place{places.length !== 1 ? "s" : ""} found
+                {displayedPlaces.length} place{displayedPlaces.length !== 1 ? "s" : ""} found
                 {city ? ` in ${city}` : ""}
+                {durationFilter !== "all" ? ` (${durationFilter} visit)` : ""}
               </p>
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-                {places.map((place) => (
+                {displayedPlaces.map((place) => (
                   <PlaceCard
                     key={place.id}
                     place={place}

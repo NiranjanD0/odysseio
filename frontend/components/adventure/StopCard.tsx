@@ -1,6 +1,6 @@
 "use client";
 
-import { CheckCircle, SkipForward, ChevronRight, Clock, ArrowRight } from "lucide-react";
+import { CheckCircle, SkipForward, ChevronRight, Clock, ArrowRight, Trash2 } from "lucide-react";
 import type { ItineraryStop } from "@/types";
 import { CATEGORY_META, formatDuration, formatTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
@@ -13,6 +13,7 @@ interface StopCardProps {
   isActive: boolean;
   onComplete: (id: string) => void;
   onSkip: (id: string) => void;
+  onRemove?: (id: string) => void;
   onDetails: (stop: ItineraryStop) => void;
   onClick: (id: string) => void;
 }
@@ -23,6 +24,7 @@ export function StopCard({
   isActive,
   onComplete,
   onSkip,
+  onRemove,
   onDetails,
   onClick,
 }: StopCardProps) {
@@ -106,6 +108,20 @@ export function StopCard({
             Details <ChevronRight size={12} />
           </Button>
           <div className="flex-1" />
+          {onRemove && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-xs py-1 px-2 text-red-500 hover:bg-red-50"
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemove(stop.id);
+              }}
+              title="Remove stop"
+            >
+              <Trash2 size={12} />
+            </Button>
+          )}
           <Button
             size="sm"
             variant="ghost"

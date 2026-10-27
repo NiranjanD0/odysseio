@@ -441,6 +441,89 @@ export async function deleteJourney(id: string): Promise<void> {
   }
 }
 
+export async function addStopToLatestJourney(
+  place: Place
+): Promise<{ success: boolean; message: string; journeyId?: string }> {
+  const journeys = await getJourneys();
+  const active = journeys.find(
+    (j) => j.status === "upcoming" || j.status === "in-progress"
+  );
+  if (!active) {
+    return {
+      success: false,
+      message: "No active journey found. Start planning an adventure first!",
+    };
+  }
+  // Check duplicates
+  if (
+    active.stops.some(
+      (s) =>
+        s.place.id === place.id ||
+        s.place.name.toLowerCase() === place.name.toLowerCase()
+    )
+  ) {
+    return {
+      success: false,
+      message: `"${place.name}" is already in this itinerary.`,
+    };
+  }
+
+  const lastStop = active.stops[active.stops.length - 1];
+  const lastDeparture = lastStop ? lastStop.departureTime : active.startTime;
+  const [dh, dm] = lastDeparture.split(":").map(Number);
+  const travelTime =
+    active.transport === "walking" ? 15 : active.transport === "cycling" ? 8 : 12;
+  const arrivalMin = dh * 60 + dm + travelTime;
+  const departureMin = arrivalMin + place.estimatedVisitMinutes;
+
+  const newStop: ItineraryStop = {
+    id: `s-${Date.now()}-${place.id}`,
+    place,
+    arrivalTime: minutesToTime(arrivalMin),
+    departureTime: minutesToTime(departureMin),
+    travelTimeFromPrev: travelTime,
+    status: "upcoming",
+  };
+
+  const updated: Itinerary = {
+    ...active,
+    stops: [...active.stops, newStop],
+    explorationMinutes: active.explorationMinutes + place.estimatedVisitMinutes,
+    travelMinutes: active.travelMinutes + travelTime,
+  };
+
+  await saveJourney(updated);
+  return {
+    success: true,
+    message: `Added "${place.name}" to ${active.title}`,
+    journeyId: active.id,
+  };
+}
+
+export async function removeStopFromJourney(
+  journeyId: string,
+  stopId: string
+): Promise<Itinerary | null> {
+  const itin = await getItinerary(journeyId);
+  if (!itin) return null;
+  const removedStop = itin.stops.find((s) => s.id === stopId);
+  const updatedStops = itin.stops.filter((s) => s.id !== stopId);
+  const updated: Itinerary = {
+    ...itin,
+    stops: updatedStops,
+    explorationMinutes: Math.max(
+      0,
+      itin.explorationMinutes - (removedStop?.place.estimatedVisitMinutes || 0)
+    ),
+    travelMinutes: Math.max(
+      0,
+      itin.travelMinutes - (removedStop?.travelTimeFromPrev || 0)
+    ),
+  };
+  await saveJourney(updated);
+  return updated;
+}
+
 export async function replanItinerary(
   itinerary: Itinerary,
   remainingMinutes: number

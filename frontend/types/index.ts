@@ -104,3 +104,24 @@ export interface UserPreferences {
   interests: Category[];
   safetyBufferMinutes: number;
 }
+
+export interface EnvironmentalContext {
+  weather?: {
+    current?: {
+      temperature: number;
+      weatherCode: number;
+      windSpeed: number;
+      isDay: boolean;
+      description: string;
+    };
+  };
+  airQuality?: {
+    aqi?: number;
+    category?: string;
+  };
+  bikeSharing?: {
+    available: boolean;
+    networkName?: string;
+    stations?: Array<{ id: string; name: string }>;
+  };
+}

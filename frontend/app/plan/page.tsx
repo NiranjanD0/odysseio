@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { PlanWizard } from "@/components/planner/PlanWizard";
@@ -20,7 +21,9 @@ export default function PlanPage() {
               Tell us where you are, when you need to be back, and what you love. We&apos;ll do the rest.
             </p>
           </div>
-          <PlanWizard />
+          <Suspense fallback={<div className="max-w-lg mx-auto p-12 text-center text-text-muted">Loading planner…</div>}>
+            <PlanWizard />
+          </Suspense>
         </div>
       </main>
       <Footer />

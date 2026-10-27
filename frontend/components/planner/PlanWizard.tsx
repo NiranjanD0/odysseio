@@ -1,15 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useForm, Controller, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { motion, AnimatePresence } from "motion/react";
-import { ChevronRight, ChevronLeft, Loader2, Clock, MapPin } from "lucide-react";
-import type { Category, Pace, Transport } from "@/types";
+import { ChevronRight, ChevronLeft, Loader2, Clock, MapPin, CloudSun, Bike } from "lucide-react";
+import type { Category, Pace, Transport, EnvironmentalContext } from "@/types";
 import { CATEGORY_META, formatDuration } from "@/lib/utils";
-import { generateItinerary } from "@/lib/api";
+import { generateItinerary, getUserPreferences, getEnvironmentalContext } from "@/lib/api";
 import { MOCK_DESTINATIONS } from "@/lib/mock-data";
 import { Button } from "@/components/ui/Button";
 import { Input, Select } from "@/components/ui/Input";
@@ -50,21 +50,27 @@ const TRANSPORT_OPTIONS: { value: Transport; label: string; emoji: string }[] = 
 
 export function PlanWizard() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [step, setStep] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [envContext, setEnvContext] = useState<EnvironmentalContext | null>(null);
+
+  const initialDestination = searchParams?.get("destination") ?? searchParams?.get("city") ?? "";
+  const initialStartLocation = searchParams?.get("startLocation") ?? searchParams?.get("place") ?? "City centre";
 
   const {
     register,
     control,
     handleSubmit,
+    reset,
     formState: { errors },
     trigger,
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
     defaultValues: {
-      destination: "",
-      startLocation: "City centre",
+      destination: initialDestination,
+      startLocation: initialStartLocation,
       startTime: "09:00",
       returnTime: "13:00",
       safetyBufferMinutes: 15,
@@ -73,6 +79,21 @@ export function PlanWizard() {
       transport: "walking",
     },
   });
+
+  // Pre-fill preferences on mount
+  useEffect(() => {
+    const prefs = getUserPreferences();
+    reset({
+      destination: initialDestination,
+      startLocation: initialStartLocation,
+      startTime: "09:00",
+      returnTime: "13:00",
+      safetyBufferMinutes: prefs.safetyBufferMinutes ?? 15,
+      interests: (prefs.interests && prefs.interests.length > 0) ? prefs.interests : ["food", "culture"],
+      pace: prefs.pace ?? "balanced",
+      transport: prefs.transport ?? "walking",
+    });
+  }, [initialDestination, initialStartLocation, reset]);
 
   const watchAll = useWatch({ control });
   const startTime = watchAll.startTime ?? "09:00";
@@ -86,13 +107,41 @@ export function PlanWizard() {
     return Math.max(0, (rh * 60 + rm) - (sh * 60 + sm) - safetyBufferMinutes);
   })();
 
+  // Fetch live context for selected destination
+  useEffect(() => {
+    const dest = MOCK_DESTINATIONS.find(
+      (d) => d.city.toLowerCase() === (watchAll.destination || "").toLowerCase()
+    );
+    if (dest) {
+      getEnvironmentalContext(dest.coordinates.lat, dest.coordinates.lng).then(setEnvContext);
+    }
+  }, [watchAll.destination]);
+
   const validateStep = async () => {
     const fields: Record<number, (keyof FormValues)[]> = {
       0: ["destination", "startLocation"],
       1: ["startTime", "returnTime", "safetyBufferMinutes"],
       2: ["interests", "pace", "transport"],
     };
-    return trigger(fields[step]);
+    const valid = await trigger(fields[step]);
+    if (!valid) return false;
+
+    // Strict time validation on Step 1
+    if (step === 1) {
+      const [sh, sm] = (startTime || "09:00").split(":").map(Number);
+      const [rh, rm] = (returnTime || "13:00").split(":").map(Number);
+      const totalMinutes = (rh * 60 + rm) - (sh * 60 + sm);
+      if (totalMinutes <= 0) {
+        toast("Return time must be later than start time.", "error");
+        return false;
+      }
+      if (totalMinutes - safetyBufferMinutes < 15) {
+        toast("Exploration window after safety buffer must be at least 15 minutes.", "error");
+        return false;
+      }
+    }
+
+    return true;
   };
 
   const next = async () => {
@@ -364,6 +413,31 @@ export function PlanWizard() {
                     </div>
                   </div>
                 </div>
+                {envContext && (
+                  <div className="bg-sage/20 border border-border-theme rounded-[14px] p-3 space-y-2">
+                    <p className="text-xs font-semibold text-forest flex items-center gap-1.5">
+                      <CloudSun size={14} /> Destination Live Context
+                    </p>
+                    <div className="grid grid-cols-2 gap-2 text-xs">
+                      {envContext.weather?.current && (
+                        <div className="flex items-center gap-1.5 text-text-muted">
+                          <span>🌤️ {envContext.weather.current.temperature}°C, {envContext.weather.current.description}</span>
+                        </div>
+                      )}
+                      {envContext.airQuality?.category && (
+                        <div className="flex items-center gap-1.5 text-text-muted">
+                          <span>🍃 Air: {envContext.airQuality.category} (AQI {envContext.airQuality.aqi ?? "N/A"})</span>
+                        </div>
+                      )}
+                    </div>
+                    {watchAll.transport === "cycling" && envContext.bikeSharing?.available && (
+                      <p className="text-xs text-text-muted flex items-center gap-1 pt-0.5">
+                        <Bike size={13} className="text-forest" />
+                        <span>{envContext.bikeSharing.networkName} ({envContext.bikeSharing.stations?.length ?? 0} nearby stations)</span>
+                      </p>
+                    )}
+                  </div>
+                )}
                 <p className="text-xs text-text-muted bg-cream rounded-[12px] px-3 py-2">
                   ⚡ Itinerary will be generated from mock data. Travel times are simulated.
                 </p>

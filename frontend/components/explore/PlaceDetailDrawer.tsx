@@ -1,14 +1,15 @@
 "use client";
 
 import Image from "next/image";
-import { Heart, Star, Clock, MapPin, Plus, ExternalLink } from "lucide-react";
+import { Heart, Star, Clock, MapPin, Plus, ExternalLink, Compass } from "lucide-react";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Place } from "@/types";
 import { CATEGORY_META, formatDuration, formatTime } from "@/lib/utils";
 import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Drawer } from "@/components/ui/Drawer";
-import { toggleSavedPlace } from "@/lib/api";
+import { toggleSavedPlace, addStopToLatestJourney } from "@/lib/api";
 import { useToast } from "@/components/ui/Toast";
 
 interface PlaceDetailDrawerProps {
@@ -22,8 +23,10 @@ export function PlaceDetailDrawer({
   onClose,
   onAddToItinerary,
 }: PlaceDetailDrawerProps) {
+  const router = useRouter();
   const { toast } = useToast();
   const [saved, setSaved] = useState(place?.isSaved ?? false);
+  const [adding, setAdding] = useState(false);
 
   if (!place) return null;
 
@@ -33,6 +36,33 @@ export function PlaceDetailDrawer({
     const next = await toggleSavedPlace(place);
     setSaved(next);
     toast(next ? `Saved ${place.name}` : `Removed from saved`, next ? "success" : "info");
+  };
+
+  const handleAddStop = async () => {
+    if (onAddToItinerary) {
+      onAddToItinerary(place);
+      onClose();
+      return;
+    }
+    setAdding(true);
+    try {
+      const res = await addStopToLatestJourney(place);
+      if (res.success) {
+        toast(res.message, "success");
+        onClose();
+      } else {
+        toast(res.message, "info");
+      }
+    } catch {
+      toast("Could not add to itinerary", "error");
+    } finally {
+      setAdding(false);
+    }
+  };
+
+  const handlePlanWithPlace = () => {
+    onClose();
+    router.push(`/plan?destination=${encodeURIComponent(place.city)}&startLocation=${encodeURIComponent(place.name)}`);
   };
 
   return (
@@ -108,18 +138,24 @@ export function PlaceDetailDrawer({
 
         {/* Actions */}
         <div className="flex flex-col gap-2 pt-1">
-          {onAddToItinerary && (
+          <div className="grid grid-cols-2 gap-2">
             <Button
-              onClick={() => {
-                onAddToItinerary(place);
-                onClose();
-              }}
-              className="w-full"
+              onClick={handleAddStop}
+              disabled={adding}
+              className="w-full text-xs"
             >
-              <Plus size={16} />
-              Add to itinerary
+              <Plus size={15} />
+              {adding ? "Adding…" : "Add to adventure"}
             </Button>
-          )}
+            <Button
+              variant="secondary"
+              onClick={handlePlanWithPlace}
+              className="w-full text-xs"
+            >
+              <Compass size={15} />
+              Plan new trip
+            </Button>
+          </div>
           <div className="flex gap-2">
             <Button
               variant="secondary"
