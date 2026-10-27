@@ -60,8 +60,30 @@ export async function searchPlaces(
 ): Promise<Place[]> {
   try {
     const params = new URLSearchParams();
-    if (city) params.set("city", city);
-    else params.set("city", "Paris"); // default anchor if no city specified
+    const knownCities = [
+      "mumbai",
+      "delhi",
+      "new delhi",
+      "bengaluru",
+      "bangalore",
+      "jaipur",
+      "ahmedabad",
+      "hyderabad",
+      "kolkata",
+      "chennai",
+      "paris",
+      "tokyo",
+      "rome",
+      "barcelona",
+      "new york",
+      "kyoto",
+      "amsterdam",
+    ];
+    const lowerQuery = query.toLowerCase().trim();
+    const matchedCity = knownCities.find((c) => lowerQuery.includes(c));
+
+    const effectiveCity = city || matchedCity || (query ? query : "Mumbai");
+    params.set("city", effectiveCity);
     if (query) params.set("query", query);
     if (categories.length > 0) params.set("categories", categories.join(","));
 
@@ -71,7 +93,7 @@ export async function searchPlaces(
 
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data.places)) {
+      if (Array.isArray(data.places) && data.places.length > 0) {
         return data.places;
       }
     }
@@ -87,6 +109,8 @@ export async function searchPlaces(
       !q ||
       p.name.toLowerCase().includes(q) ||
       p.description.toLowerCase().includes(q) ||
+      p.city.toLowerCase().includes(q) ||
+      p.country.toLowerCase().includes(q) ||
       p.tags.some((t) => t.includes(q));
     const matchesCity = !city || p.city.toLowerCase() === city.toLowerCase();
     const matchesCat =

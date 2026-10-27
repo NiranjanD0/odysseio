@@ -21,6 +21,16 @@ CITY_COORDINATES: dict[str, Coordinates] = {
     "kyoto": Coordinates(lat=35.0116, lng=135.7681),
     "amsterdam": Coordinates(lat=52.3676, lng=4.9041),
     "florence": Coordinates(lat=43.7696, lng=11.2558),
+    "mumbai": Coordinates(lat=19.0760, lng=72.8777),
+    "delhi": Coordinates(lat=28.6139, lng=77.2090),
+    "new delhi": Coordinates(lat=28.6139, lng=77.2090),
+    "bengaluru": Coordinates(lat=12.9716, lng=77.5946),
+    "bangalore": Coordinates(lat=12.9716, lng=77.5946),
+    "jaipur": Coordinates(lat=26.9124, lng=75.7873),
+    "ahmedabad": Coordinates(lat=23.0225, lng=72.5714),
+    "hyderabad": Coordinates(lat=17.3850, lng=78.4867),
+    "kolkata": Coordinates(lat=22.5726, lng=88.3639),
+    "chennai": Coordinates(lat=13.0827, lng=80.2707),
 }
 
 

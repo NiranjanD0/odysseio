@@ -270,11 +270,225 @@ export const MOCK_PLACES: Place[] = [
     openingHours: { open: "08:00", close: "20:30", days: "Mon–Sat" },
     address: "La Rambla, 91, 08001 Barcelona",
   },
+  {
+    id: "p-in-1",
+    name: "Gateway of India",
+    city: "Mumbai",
+    country: "India",
+    description:
+      "An iconic 20th-century arch monument overlooking the Arabian Sea, standing opposite the legendary Taj Mahal Palace Hotel.",
+    category: "history",
+    tags: ["iconic", "monument", "harbour", "colonial architecture"],
+    coordinates: { lat: 18.9220, lng: 72.8347 },
+    imageUrl:
+      "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=800&auto=format&fit=crop&q=80",
+    rating: 4.6,
+    reviewCount: 42100,
+    estimatedVisitMinutes: 45,
+    address: "Apollo Bandar, Colaba, Mumbai 400001",
+  },
+  {
+    id: "p-in-2",
+    name: "Marine Drive & Promenade",
+    city: "Mumbai",
+    country: "India",
+    description:
+      "The famous 3.6-kilometre arc of promenade alongside Netaji Subhash Chandra Bose Road, known as the Queen's Necklace at night.",
+    category: "photography",
+    tags: ["sunset", "promenade", "sea breeze", "queens necklace"],
+    coordinates: { lat: 18.9432, lng: 72.8234 },
+    imageUrl:
+      "https://images.unsplash.com/photo-1567157577867-05ccb1388e66?w=800&auto=format&fit=crop&q=80",
+    rating: 4.7,
+    reviewCount: 38400,
+    estimatedVisitMinutes: 60,
+    address: "Marine Drive, Churchgate, Mumbai 400020",
+  },
+  {
+    id: "p-in-3",
+    name: "Red Fort (Lal Qila)",
+    city: "Delhi",
+    country: "India",
+    description:
+      "A grand 17th-century Mughal fortress of red sandstone constructed under Emperor Shah Jahan, designated a UNESCO World Heritage site.",
+    category: "history",
+    tags: ["unesco", "mughal", "fort", "heritage"],
+    coordinates: { lat: 28.6562, lng: 77.2410 },
+    imageUrl:
+      "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&auto=format&fit=crop&q=80",
+    rating: 4.5,
+    reviewCount: 52000,
+    estimatedVisitMinutes: 90,
+    openingHours: { open: "09:30", close: "16:30", days: "Tue–Sun" },
+    address: "Netaji Subhash Marg, Chandni Chowk, New Delhi 110006",
+  },
+  {
+    id: "p-in-4",
+    name: "Humayun's Tomb",
+    city: "Delhi",
+    country: "India",
+    description:
+      "The stunning garden tomb that inspired the Taj Mahal, showcasing sublime Persian and Mughal symmetry set amidst lush quadrangle gardens.",
+    category: "architecture",
+    tags: ["unesco", "garden tomb", "architecture", "serene"],
+    coordinates: { lat: 28.5933, lng: 77.2507 },
+    imageUrl:
+      "https://images.unsplash.com/photo-1608958435020-e8a7109ba809?w=800&auto=format&fit=crop&q=80",
+    rating: 4.7,
+    reviewCount: 29800,
+    estimatedVisitMinutes: 75,
+    openingHours: { open: "06:00", close: "18:00", days: "Daily" },
+    address: "Mathura Road, Nizamuddin East, New Delhi 110013",
+  },
+  {
+    id: "p-in-5",
+    name: "Hawa Mahal (Palace of Winds)",
+    city: "Jaipur",
+    country: "India",
+    description:
+      "A five-story pink sandstone palace with 953 intricately carved jharokhas (small casements) designed to allow royal ladies to observe street life.",
+    category: "architecture",
+    tags: ["pink city", "palace", "rajasthan", "historic"],
+    coordinates: { lat: 26.9239, lng: 75.8267 },
+    imageUrl:
+      "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=800&auto=format&fit=crop&q=80",
+    rating: 4.6,
+    reviewCount: 34100,
+    estimatedVisitMinutes: 45,
+    openingHours: { open: "09:00", close: "17:00", days: "Daily" },
+    address: "Hawa Mahal Rd, Badi Choupad, Jaipur 302002",
+  },
+  {
+    id: "p-in-6",
+    name: "Amber Fort & Palace",
+    city: "Jaipur",
+    country: "India",
+    description:
+      "Perched on a rugged hill overlooking Maota Lake, renowned for its artistic Rajput elements, Sheesh Mahal (Mirror Palace), and cobblestone paths.",
+    category: "history",
+    tags: ["unesco", "hill fort", "mirror palace", "views"],
+    coordinates: { lat: 26.9855, lng: 75.8513 },
+    imageUrl:
+      "https://images.unsplash.com/photo-1599661046289-e31897846e41?w=800&auto=format&fit=crop&q=80",
+    rating: 4.8,
+    reviewCount: 46200,
+    estimatedVisitMinutes: 120,
+    openingHours: { open: "08:00", close: "17:30", days: "Daily" },
+    address: "Devisinghpura, Amer, Jaipur 302001",
+  },
+  {
+    id: "p-in-7",
+    name: "Lalbagh Botanical Gardens",
+    city: "Bengaluru",
+    country: "India",
+    description:
+      "A century-old botanical haven home to India's largest collection of tropical and subtropical plants, centuries-old trees, and the iconic Victorian Glass House.",
+    category: "nature",
+    tags: ["botanical garden", "glass house", "peaceful", "flora"],
+    coordinates: { lat: 12.9507, lng: 77.5848 },
+    imageUrl:
+      "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=800&auto=format&fit=crop&q=80",
+    rating: 4.5,
+    reviewCount: 31200,
+    estimatedVisitMinutes: 90,
+    openingHours: { open: "06:00", close: "19:00", days: "Daily" },
+    address: "Mavalli, Bengaluru 560004",
+  },
+  {
+    id: "p-in-8",
+    name: "Café Leopold & Bar",
+    city: "Mumbai",
+    country: "India",
+    description:
+      "An iconic century-old heritage café and Irani restaurant in Colaba famous for cold beer, keema pav, and vintage atmosphere.",
+    category: "cafe",
+    tags: ["heritage", "iranicafe", "beer", "legendary"],
+    coordinates: { lat: 18.9229, lng: 72.8318 },
+    imageUrl:
+      "https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=800&auto=format&fit=crop&q=80",
+    rating: 4.4,
+    reviewCount: 15400,
+    estimatedVisitMinutes: 60,
+    openingHours: { open: "07:30", close: "00:00", days: "Daily" },
+    address: "SB Singh Road, Colaba Causeway, Mumbai 400001",
+  },
 ];
 
 // ─── Destinations ──────────────────────────────────────────────────────────
 
 export const MOCK_DESTINATIONS: Destination[] = [
+  {
+    id: "d-mumbai",
+    city: "Mumbai",
+    country: "India",
+    imageUrl:
+      "https://images.unsplash.com/photo-1570168007204-dfb528c6958f?w=800&auto=format&fit=crop&q=80",
+    description:
+      "The Maximum City — a bustling metropolis of colonial architecture, seaside promenades, Bollywood dreams, and legendary street food.",
+    highlights: [
+      "Gateway of India",
+      "Marine Drive sunset",
+      "Colaba street art & cafes",
+      "Bandra buzzing culture",
+    ],
+    coordinates: { lat: 19.0760, lng: 72.8777 },
+    popularCategories: ["culture", "food", "history", "photography", "architecture"],
+    placeCount: 4,
+  },
+  {
+    id: "d-delhi",
+    city: "Delhi",
+    country: "India",
+    imageUrl:
+      "https://images.unsplash.com/photo-1587474260584-136574528ed5?w=800&auto=format&fit=crop&q=80",
+    description:
+      "A historic capital of empires where centuries-old Mughal monuments, vibrant bazaars, and modern cultural hubs converge.",
+    highlights: [
+      "Red Fort & Old Delhi",
+      "Humayun's Tomb",
+      "Qutub Minar complex",
+      "Chandni Chowk food trail",
+    ],
+    coordinates: { lat: 28.6139, lng: 77.2090 },
+    popularCategories: ["history", "culture", "food", "photography", "architecture"],
+    placeCount: 4,
+  },
+  {
+    id: "d-jaipur",
+    city: "Jaipur",
+    country: "India",
+    imageUrl:
+      "https://images.unsplash.com/photo-1477587458883-47145ed94245?w=800&auto=format&fit=crop&q=80",
+    description:
+      "The Pink City of Rajasthan — famous for its magnificent hilltop forts, royal palaces, handwoven textiles, and vibrant heritage.",
+    highlights: [
+      "Hawa Mahal facade",
+      "Amber Fort",
+      "City Palace & Jantar Mantar",
+      "Johari Bazaar crafts",
+    ],
+    coordinates: { lat: 26.9124, lng: 75.7873 },
+    popularCategories: ["history", "architecture", "shopping", "photography", "culture"],
+    placeCount: 4,
+  },
+  {
+    id: "d-bengaluru",
+    city: "Bengaluru",
+    country: "India",
+    imageUrl:
+      "https://images.unsplash.com/photo-1596176530529-78163a4f7af2?w=800&auto=format&fit=crop&q=80",
+    description:
+      "India's Garden City and tech hub — filled with lush public parks, artisan microbreweries, colonial heritage, and bustling cafe culture.",
+    highlights: [
+      "Lalbagh Botanical Gardens",
+      "Cubbon Park green lung",
+      "Bangalore Palace",
+      "Indiranagar cafe hub",
+    ],
+    coordinates: { lat: 12.9716, lng: 77.5946 },
+    popularCategories: ["nature", "cafe", "food", "culture", "nightlife"],
+    placeCount: 4,
+  },
   {
     id: "d1",
     city: "Paris",
