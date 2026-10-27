@@ -49,7 +49,7 @@ export function PlaceDetailDrawer({
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent" />
         <div className="absolute bottom-4 left-5 right-5">
           <Badge variant="category" colorClass={cat.color}>
-            {cat.emoji} {cat.label}
+            {cat.label}
           </Badge>
         </div>
       </div>

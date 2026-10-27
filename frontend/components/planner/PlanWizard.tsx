@@ -354,9 +354,9 @@ export function PlanWizard() {
                       {watchAll.interests.map((i) => (
                         <span
                           key={i}
-                          className="text-xs bg-sage text-forest px-2.5 py-1 rounded-full"
+                          className="text-xs bg-sage text-forest px-2.5 py-1 rounded-full font-medium"
                         >
-                          {CATEGORY_META[i as Category]?.emoji} {CATEGORY_META[i as Category]?.label}
+                          {CATEGORY_META[i as Category]?.label}
                         </span>
                       ))}
                     </div>
