@@ -1,3 +1,4 @@
+from app.core.logging import logger
 from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
