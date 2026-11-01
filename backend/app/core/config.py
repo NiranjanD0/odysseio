@@ -74,6 +74,10 @@ class Settings(BaseSettings):
     # Telegram Bot
     TELEGRAM_BOT_TOKEN: str = ""
     TELEGRAM_DEFAULT_CHAT_ID: str = ""
+    TELEGRAM_BOT_USERNAME: str = "odysseioBot"
+    TELEGRAM_WEBHOOK_SECRET: str = ""
+    TELEGRAM_MODE: str = "polling"
+    TELEGRAM_WEB_BASE_URL: str = "http://localhost:3000"
 
     # Defaults
     DEFAULT_SAFETY_BUFFER_MINUTES: int = 15

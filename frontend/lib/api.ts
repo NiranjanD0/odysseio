@@ -16,11 +16,17 @@ import type {
   ItineraryStop,
   Place,
   PlanWizardValues,
+  TelegramLinkCodeResponse,
+  TelegramPreferencesResponse,
+  TelegramStatus,
+  TelegramTestResponse,
   UserPreferences,
 } from "@/types";
 
 const BACKEND_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/v1";
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000/api/v1";
 
 // ─── Storage helpers ────────────────────────────────────────────────────────
 
@@ -622,7 +628,118 @@ export async function replanItinerary(
   return updated;
 }
 
-// ─── Telegram Notifications ────────────────────────────────────────────────
+// ─── Telegram Bot API ──────────────────────────────────────────────────────
+
+export async function getTelegramStatus(
+  ownerId: string = "default_user"
+): Promise<TelegramStatus> {
+  try {
+    const res = await fetch(
+      `${BACKEND_URL}/telegram/status?owner_id=${encodeURIComponent(ownerId)}`
+    );
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // Offline
+  }
+  return {
+    linked: false,
+    owner_id: ownerId,
+    chat_id: null,
+    username: null,
+    notifications_enabled: false,
+    linked_at: null,
+    bot_username: "odysseioBot",
+  };
+}
+
+export async function generateTelegramLinkCode(
+  ownerId: string = "default_user"
+): Promise<TelegramLinkCodeResponse | null> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/telegram/link-code`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ owner_id: ownerId }),
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // Offline
+  }
+  return null;
+}
+
+export async function updateTelegramPreferences(
+  notificationsEnabled: boolean,
+  ownerId: string = "default_user"
+): Promise<TelegramPreferencesResponse> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/telegram/preferences`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        owner_id: ownerId,
+        notifications_enabled: notificationsEnabled,
+      }),
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // Offline
+  }
+  return {
+    success: false,
+    notifications_enabled: notificationsEnabled,
+    message: "Could not update Telegram notification preferences.",
+  };
+}
+
+export async function sendTelegramTest(
+  ownerId: string = "default_user",
+  message?: string
+): Promise<TelegramTestResponse> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/telegram/test`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        owner_id: ownerId,
+        message: message || undefined,
+      }),
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // Offline
+  }
+  return {
+    success: false,
+    message: "Could not send test message to Telegram.",
+  };
+}
+
+export async function unlinkTelegram(
+  ownerId: string = "default_user"
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const res = await fetch(`${BACKEND_URL}/telegram/unlink`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ owner_id: ownerId }),
+    });
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch {
+    // Offline
+  }
+  return { success: false, message: "Could not unlink Telegram." };
+}
 
 export async function sendTelegramNotification(
   itineraryId: string,

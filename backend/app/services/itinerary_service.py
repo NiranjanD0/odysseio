@@ -186,4 +186,13 @@ class ItineraryService:
             return_coord=return_coord,
         )
 
+        # 8. Notify Telegram if opted-in
+        try:
+            from app.services.telegram_service import TelegramService
+
+            tg_service = TelegramService(self.session)
+            await tg_service.notify_journey_created(itinerary)
+        except Exception as e:
+            logger.warning(f"Telegram journey notification failed (non-blocking): {e}")
+
         return itinerary

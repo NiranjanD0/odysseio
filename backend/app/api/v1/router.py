@@ -9,6 +9,7 @@ from app.api.v1.endpoints import (
     notifications,
     places,
     saved_places,
+    telegram,
 )
 
 api_router = APIRouter(prefix="/api/v1")
@@ -21,3 +22,4 @@ api_router.include_router(itineraries.router)
 api_router.include_router(journeys.router)
 api_router.include_router(saved_places.router)
 api_router.include_router(notifications.router)
+api_router.include_router(telegram.router)

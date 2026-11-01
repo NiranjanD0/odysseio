@@ -1,3 +1,4 @@
+from app.core.logging import logger
 from datetime import UTC, datetime
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -190,4 +191,15 @@ class ReplanService:
 
         # Save to DB
         await self.journey_repo.save_journey(itinerary)
+
+        # Notify Telegram if opted-in
+        try:
+            from app.services.telegram_service import TelegramService
+
+            tg_service = TelegramService(self.session)
+            changes_summary = f"{len(req.completedStopIds)} completed, {len(req.skippedStopIds)} skipped, {len(scheduled_remaining)} rescheduled."
+            await tg_service.notify_journey_replanned(itinerary, changes_summary=changes_summary)
+        except Exception as e:
+            logger.warning(f"Telegram replan notification failed (non-blocking): {e}")
+
         return itinerary

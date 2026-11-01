@@ -137,3 +137,32 @@ export interface EnvironmentalContext {
     stations?: Array<{ id: string; name: string }>;
   };
 }
+
+export interface TelegramStatus {
+  linked: boolean;
+  owner_id: string;
+  chat_id?: string | null;
+  username?: string | null;
+  notifications_enabled: boolean;
+  linked_at?: string | null;
+  bot_username: string;
+}
+
+export interface TelegramLinkCodeResponse {
+  code: string;
+  expires_at: string;
+  bot_username: string;
+  deep_link: string;
+}
+
+export interface TelegramPreferencesResponse {
+  success: boolean;
+  notifications_enabled: boolean;
+  message: string;
+}
+
+export interface TelegramTestResponse {
+  success: boolean;
+  message: string;
+  messageId?: number | null;
+}
