@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Input";
 import { useToast } from "@/components/ui/Toast";
 import { ThemeSwitcher } from "@/components/ui/theme-switcher";
+import { TelegramConnectPanel } from "@/components/ui/TelegramConnectPanel";
 import {
   getUserPreferences,
   saveUserPreferences,
@@ -216,6 +217,9 @@ export default function SettingsPage() {
                 <option value={30}>30 minutes (relaxed)</option>
               </Select>
             </section>
+
+            {/* Telegram Bot Connection */}
+            <TelegramConnectPanel />
 
             {/* Appearance / Theme */}
             <section className="bg-white rounded-[20px] border border-border-theme p-6 space-y-3 shadow-xs">

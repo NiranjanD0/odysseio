@@ -354,7 +354,114 @@ curl -X POST http://localhost:8000/api/v1/itineraries/d8e3b4a2-11c5-4a12-87ff-43
 
 ---
 
-### 3.9 Telegram Notifications (Optional)
+### 3.9 Telegram Integration
+
+#### 3.9.1 Generate Link Code
+**`POST /api/v1/telegram/link-code`**
+
+Generate a short-lived (15 min), single-use code to bind a Telegram chat.
+
+Request JSON:
+```json
+{
+  "owner_id": "default_user"
+}
+```
+
+Response (`200 OK`):
+```json
+{
+  "code": "ODY-7X9K2M",
+  "expires_at": "2026-11-01T17:15:00.000000+00:00",
+  "bot_username": "odysseioBot",
+  "deep_link": "https://t.me/odysseioBot?start=ODY-7X9K2M"
+}
+```
+
+#### 3.9.2 Connection Status
+**`GET /api/v1/telegram/status?owner_id=default_user`**
+
+Response (`200 OK`):
+```json
+{
+  "linked": true,
+  "owner_id": "default_user",
+  "chat_id": "123456789",
+  "username": "traveler",
+  "notifications_enabled": true,
+  "linked_at": "2026-11-01T16:45:00.000000+00:00",
+  "bot_username": "odysseioBot"
+}
+```
+
+#### 3.9.3 Notification Preferences
+**`POST /api/v1/telegram/preferences`**
+
+Request JSON:
+```json
+{
+  "owner_id": "default_user",
+  "notifications_enabled": false
+}
+```
+
+Response (`200 OK`):
+```json
+{
+  "success": true,
+  "notifications_enabled": false,
+  "message": "Notification preferences set to disabled."
+}
+```
+
+#### 3.9.4 Send Test Message
+**`POST /api/v1/telegram/test`**
+
+Request JSON:
+```json
+{
+  "owner_id": "default_user",
+  "message": "Test notification from ODYSSEIO"
+}
+```
+
+Response (`200 OK`):
+```json
+{
+  "success": true,
+  "message": "Notification sent successfully.",
+  "messageId": 42
+}
+```
+
+#### 3.9.5 Unlink Connection
+**`POST /api/v1/telegram/unlink`**
+
+Request JSON:
+```json
+{
+  "owner_id": "default_user"
+}
+```
+
+Response (`200 OK`):
+```json
+{
+  "success": true,
+  "message": "Telegram account unlinked successfully."
+}
+```
+
+#### 3.9.6 Webhook
+**`POST /api/v1/telegram/webhook`**
+
+Header: `X-Telegram-Bot-Api-Secret-Token` (validated against `TELEGRAM_WEBHOOK_SECRET`)
+
+Handles `/start`, `/help`, `/link <code>`, `/journey`, `/notify on|off`, `/unlink`.
+
+---
+
+### 3.10 Legacy Telegram Notifications (Optional Direct)
 **`POST /api/v1/notifications/telegram`**
 
 Request JSON:

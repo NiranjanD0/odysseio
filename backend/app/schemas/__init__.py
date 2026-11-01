@@ -31,6 +31,17 @@ from app.schemas.saved_place import (
     SavedPlacesListResponse,
     SavedPlaceToggleRequest,
 )
+from app.schemas.telegram import (
+    TelegramLinkCodeRequest,
+    TelegramLinkCodeResponse,
+    TelegramPreferencesRequest,
+    TelegramPreferencesResponse,
+    TelegramStatusResponse,
+    TelegramTestRequest,
+    TelegramTestResponse,
+    TelegramUnlinkRequest,
+    TelegramUnlinkResponse,
+)
 
 __all__ = [
     "Category",
@@ -61,4 +72,13 @@ __all__ = [
     "SavedPlacesListResponse",
     "TelegramNotificationRequest",
     "TelegramNotificationResponse",
+    "TelegramLinkCodeRequest",
+    "TelegramLinkCodeResponse",
+    "TelegramStatusResponse",
+    "TelegramPreferencesRequest",
+    "TelegramPreferencesResponse",
+    "TelegramTestRequest",
+    "TelegramTestResponse",
+    "TelegramUnlinkRequest",
+    "TelegramUnlinkResponse",
 ]
