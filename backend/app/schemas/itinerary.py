@@ -27,6 +27,13 @@ class ItineraryCreateRequest(BaseModel):
     interests: list[Category] = Field(..., min_length=1)
     pace: Pace = "balanced"
     transport: Transport = "walking"
+    selectedPlaceIds: list[str] | None = Field(
+        default=None, description="Optional user-selected place IDs (up to 3)"
+    )
+    customVisitDurations: dict[str, int] | None = Field(
+        default=None, description="Optional custom visit duration in minutes per place ID"
+    )
+    ownerId: str = Field(default="anonymous", description="Owner or session reference")
 
     @field_validator("returnCoordinates", mode="after")
     @classmethod
@@ -49,6 +56,13 @@ class Itinerary(BaseModel):
     explorationMinutes: int
     travelMinutes: int
     returnLegMinutes: int = 0
+    feasible: bool = True
+    availableMinutes: int = 0
+    requiredMinutes: int = 0
+    spareMinutes: int = 0
+    feasibilityStatus: str = "FEASIBLE"
+    routeGeometry: list[Coordinates] = Field(default_factory=list)
+    ownerId: str = "anonymous"
     interests: list[Category]
     status: JourneyStatus = "upcoming"
     createdAt: str

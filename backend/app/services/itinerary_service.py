@@ -79,27 +79,41 @@ class ItineraryService:
                 f"{', '.join(req.interests)}. {'; '.join(warnings)}"
             )
 
-        # 3. Score and diversify places
-        scored = ScoringService.score_places(
-            candidates=candidates,
-            interests=req.interests,
-            start_coord=start_coord,
-        )
-        diversified = ScoringService.filter_for_diversity(
-            candidates=scored,
-            target_count=15,
-            max_per_category=2,
-        )
+        # 3. Handle place selection (user-specified up to 3 places or scored discovery)
+        selected_candidates: list[Place]
+        force_selection = False
+        if req.selectedPlaceIds and len(req.selectedPlaceIds) > 0:
+            selected_ids = req.selectedPlaceIds[:3]
+            selected_map = {p.id: p for p in candidates}
+            selected_candidates = [
+                selected_map[pid] for pid in selected_ids if pid in selected_map
+            ]
+            # If some selected places weren't in current search, attempt to fetch remaining
+            if len(selected_candidates) < len(selected_ids):
+                for pid in selected_ids:
+                    if pid not in selected_map:
+                        saved_place = await self.saved_place_repo.get_by_id(pid)
+                        if saved_place:
+                            selected_candidates.append(saved_place)
+            if selected_candidates:
+                force_selection = True
+            else:
+                selected_candidates = candidates
+        else:
+            scored = ScoringService.score_places(
+                candidates=candidates,
+                interests=req.interests,
+                start_coord=start_coord,
+            )
+            selected_candidates = ScoringService.filter_for_diversity(
+                candidates=scored,
+                target_count=15,
+                max_per_category=2,
+            )
 
-        # 4. Schedule stops greedily with strict return deadline guarantee
-        (
-            stops,
-            exploration_mins,
-            travel_mins,
-            return_leg_mins,
-            sched_warnings,
-        ) = await self.scheduler.build_schedule(
-            candidates=diversified,
+        # 4. Schedule stops and evaluate truthful feasibility
+        sched_res = await self.scheduler.build_schedule(
+            candidates=selected_candidates,
             start_coord=start_coord,
             return_coord=return_coord,
             start_time_str=req.startTime,
@@ -107,13 +121,15 @@ class ItineraryService:
             safety_buffer_minutes=req.safetyBufferMinutes,
             pace=req.pace,
             transport=req.transport,
+            custom_visit_durations=req.customVisitDurations,
+            force_candidate_selection=force_selection,
         )
-        warnings.extend(sched_warnings)
+        warnings.extend(sched_res.warnings)
 
-        if not stops:
+        if not sched_res.stops:
             raise FeasibilityException(
-                "Could not build a feasible itinerary: no selected places fit within "
-                f"the available time window ({available_window}m) while allowing a safe return."
+                "Could not build an itinerary: no candidate places could be reached "
+                f"or fit within the available time window ({available_window}m)."
             )
 
         # 5. Check real weather for environmental advisory
@@ -142,13 +158,20 @@ class ItineraryService:
             startTime=req.startTime,
             returnDeadline=req.returnTime,
             safetyBufferMinutes=req.safetyBufferMinutes,
-            stops=stops,
+            stops=sched_res.stops,
             pace=req.pace,
             transport=req.transport,
-            totalMinutes=exploration_mins + travel_mins,
-            explorationMinutes=exploration_mins,
-            travelMinutes=travel_mins,
-            returnLegMinutes=return_leg_mins,
+            totalMinutes=sched_res.exploration_minutes + sched_res.travel_minutes,
+            explorationMinutes=sched_res.exploration_minutes,
+            travelMinutes=sched_res.travel_minutes,
+            returnLegMinutes=sched_res.return_leg_minutes,
+            feasible=sched_res.feasible,
+            availableMinutes=sched_res.available_minutes,
+            requiredMinutes=sched_res.required_minutes,
+            spareMinutes=sched_res.spare_minutes,
+            feasibilityStatus=sched_res.feasibility_status,
+            routeGeometry=sched_res.route_geometry,
+            ownerId=req.ownerId,
             interests=req.interests,
             status="upcoming",
             createdAt=datetime.datetime.now(datetime.UTC).isoformat(),

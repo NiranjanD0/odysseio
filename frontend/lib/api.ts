@@ -308,7 +308,7 @@ export async function generateItinerary(
     destination: values.destination,
     startLocation: values.startLocation || "City centre",
     startCoordinates: dest.coordinates,
-    returnLocation: values.startLocation || "City centre",
+    returnLocation: values.returnLocation || values.startLocation || "City centre",
     returnCoordinates: dest.coordinates,
     startTime: values.startTime,
     returnTime: values.returnTime,
@@ -316,6 +316,8 @@ export async function generateItinerary(
     interests: values.interests,
     pace: values.pace,
     transport: values.transport,
+    selectedPlaceIds: values.selectedPlaceIds,
+    customVisitDurations: values.customVisitDurations,
   };
 
   try {

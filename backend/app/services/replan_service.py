@@ -173,6 +173,19 @@ class ReplanService:
             itinerary.transport = req.updatedTransport
         if req.updatedInterests:
             itinerary.interests = req.updatedInterests
+
+        start_mins = time_to_minutes(itinerary.startTime)
+        full_available = deadline_mins - start_mins
+        full_required = travel_mins + itinerary.returnLegMinutes + exploration_mins + safety_buffer
+        itinerary.availableMinutes = full_available
+        itinerary.requiredMinutes = full_required
+        itinerary.spareMinutes = full_available - full_required
+        itinerary.feasible = full_required <= full_available
+        if itinerary.feasible:
+            itinerary.feasibilityStatus = f"FEASIBLE — {itinerary.spareMinutes} min spare"
+        else:
+            itinerary.feasibilityStatus = f"NOT FEASIBLE — {abs(itinerary.spareMinutes)} min overrun"
+
         itinerary.warnings = warnings
 
         # Save to DB

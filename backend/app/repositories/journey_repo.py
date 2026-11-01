@@ -41,6 +41,14 @@ class JourneyRepository:
                 )
             )
 
+        raw_geom = getattr(model, "route_geometry", []) or []
+        route_geom: list[Coordinates] = []
+        for pt in raw_geom:
+            if isinstance(pt, dict) and "lat" in pt and "lng" in pt:
+                route_geom.append(Coordinates(lat=float(pt["lat"]), lng=float(pt["lng"])))
+            elif isinstance(pt, (list, tuple)) and len(pt) >= 2:
+                route_geom.append(Coordinates(lat=float(pt[0]), lng=float(pt[1])))
+
         return Itinerary(
             id=model.id,
             title=model.title,
@@ -56,6 +64,13 @@ class JourneyRepository:
             explorationMinutes=model.exploration_minutes,
             travelMinutes=model.travel_minutes,
             returnLegMinutes=model.return_leg_minutes,
+            feasible=getattr(model, "feasible", True),
+            availableMinutes=getattr(model, "available_minutes", 0),
+            requiredMinutes=getattr(model, "required_minutes", 0),
+            spareMinutes=getattr(model, "spare_minutes", 0),
+            feasibilityStatus=getattr(model, "feasibility_status", "FEASIBLE"),
+            routeGeometry=route_geom,
+            ownerId=getattr(model, "owner_id", "anonymous"),
             interests=model.interests,
             status=model.status,
             createdAt=model.created_at.isoformat() if model.created_at else "",
@@ -73,6 +88,10 @@ class JourneyRepository:
         result = await self.session.execute(stmt)
         model = result.scalar_one_or_none()
 
+        geom_dicts = [
+            {"lat": c.lat, "lng": c.lng} for c in (itinerary.routeGeometry or [])
+        ]
+
         if model is None:
             model = JourneyModel(
                 id=itinerary.id,
@@ -88,6 +107,13 @@ class JourneyRepository:
                 exploration_minutes=itinerary.explorationMinutes,
                 travel_minutes=itinerary.travelMinutes,
                 return_leg_minutes=itinerary.returnLegMinutes,
+                owner_id=itinerary.ownerId or "anonymous",
+                feasible=itinerary.feasible,
+                available_minutes=itinerary.availableMinutes,
+                required_minutes=itinerary.requiredMinutes,
+                spare_minutes=itinerary.spareMinutes,
+                feasibility_status=itinerary.feasibilityStatus,
+                route_geometry=geom_dicts,
                 interests=list(itinerary.interests),
                 status=itinerary.status,
                 center_lat=itinerary.centerCoordinates.lat,
@@ -112,6 +138,13 @@ class JourneyRepository:
             model.exploration_minutes = itinerary.explorationMinutes
             model.travel_minutes = itinerary.travelMinutes
             model.return_leg_minutes = itinerary.returnLegMinutes
+            model.owner_id = itinerary.ownerId or model.owner_id
+            model.feasible = itinerary.feasible
+            model.available_minutes = itinerary.availableMinutes
+            model.required_minutes = itinerary.requiredMinutes
+            model.spare_minutes = itinerary.spareMinutes
+            model.feasibility_status = itinerary.feasibilityStatus
+            model.route_geometry = geom_dicts
             model.interests = list(itinerary.interests)
             model.status = itinerary.status
             model.warnings = itinerary.warnings

@@ -69,6 +69,15 @@ export interface Itinerary {
   totalMinutes: number;
   explorationMinutes: number;
   travelMinutes: number;
+  returnLegMinutes?: number;
+  feasible?: boolean;
+  availableMinutes?: number;
+  requiredMinutes?: number;
+  spareMinutes?: number;
+  feasibilityStatus?: string;
+  routeGeometry?: Coordinates[];
+  ownerId?: string;
+  warnings?: string[];
   interests: Category[];
   status: JourneyStatus;
   createdAt: string;
@@ -90,12 +99,15 @@ export interface Destination {
 export interface PlanWizardValues {
   destination: string;
   startLocation: string;
+  returnLocation?: string;
   startTime: string;
   returnTime: string;
   safetyBufferMinutes: number;
   interests: Category[];
   pace: Pace;
   transport: Transport;
+  selectedPlaceIds?: string[];
+  customVisitDurations?: Record<string, number>;
 }
 
 export interface UserPreferences {

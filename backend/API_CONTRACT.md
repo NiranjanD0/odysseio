@@ -224,7 +224,9 @@ Request JSON:
   "safetyBufferMinutes": 15,
   "interests": ["art", "nature", "cafe"],
   "pace": "balanced",
-  "transport": "walking"
+  "transport": "walking",
+  "selectedPlaceIds": ["geo-48.86060-2.33760"],
+  "customVisitDurations": { "geo-48.86060-2.33760": 45 }
 }
 ```
 
@@ -244,6 +246,16 @@ Response (`201 Created`):
   "explorationMinutes": 150,
   "travelMinutes": 60,
   "returnLegMinutes": 12,
+  "feasible": true,
+  "availableMinutes": 240,
+  "requiredMinutes": 222,
+  "spareMinutes": 18,
+  "feasibilityStatus": "FEASIBLE — 18 min spare",
+  "routeGeometry": [
+    { "lat": 48.8566, "lng": 2.3522 },
+    { "lat": 48.8606, "lng": 2.3376 }
+  ],
+  "ownerId": "anonymous",
   "interests": ["art", "nature", "cafe"],
   "status": "upcoming",
   "createdAt": "2026-10-27T18:00:00Z",
@@ -337,6 +349,9 @@ curl -X POST http://localhost:8000/api/v1/itineraries/d8e3b4a2-11c5-4a12-87ff-43
 
 ### 3.7 Journeys List & Management
 - **`GET /api/v1/journeys?limit=50&offset=0`**: Returns `List[Itinerary]`
+- **`GET /api/v1/journeys/{id}`**: Returns `Itinerary` by journey ID
+- **`POST /api/v1/journeys/{id}/replan`**: Replans journey (alias for `/itineraries/{id}/replan`)
+- **`PUT /api/v1/journeys/{id}`**: Updates journey
 - **`DELETE /api/v1/journeys/{id}`**: Returns `204 No Content`
 
 ---

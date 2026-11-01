@@ -1,3 +1,5 @@
+from typing import Any
+
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
@@ -16,6 +18,16 @@ class Settings(BaseSettings):
     DEBUG: bool = True
     PORT: int = 8000
     HOST: str = "0.0.0.0"
+
+    @field_validator("DEBUG", mode="before")
+    @classmethod
+    def parse_debug(cls, v: Any) -> bool:
+        if isinstance(v, str):
+            if v.lower() in ("release", "prod", "production", "false", "0", "no"):
+                return False
+            if v.lower() in ("debug", "dev", "development", "true", "1", "yes"):
+                return True
+        return bool(v)
 
     # CORS
     ALLOWED_ORIGINS: list[str] | str = [
@@ -46,8 +58,10 @@ class Settings(BaseSettings):
 
     # External APIs
     GEOAPIFY_API_KEY: str = Field(default="", description="Geoapify API key for places and routing")
+    OPENROUTESERVICE_API_KEY: str = Field(default="", description="OpenRouteService API key for directions and geometry")
+    OPENROUTESERVICE_BASE_URL: str = "https://api.openrouteservice.org"
     ROUTING_PROVIDER: str = Field(
-        default="geoapify", description="Routing provider: geoapify or osrm"
+        default="ors", description="Routing provider: ors, geoapify or osrm"
     )
     ROUTING_TIMEOUT_SECONDS: float = 10.0
     PLACES_TIMEOUT_SECONDS: float = 10.0

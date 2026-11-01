@@ -1,7 +1,7 @@
 import uuid
 from typing import TYPE_CHECKING
 
-from sqlalchemy import JSON, Float, Integer, String
+from sqlalchemy import JSON, Boolean, Float, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base, TimestampMixin
@@ -31,6 +31,14 @@ class JourneyModel(Base, TimestampMixin):
     exploration_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     travel_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     return_leg_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+    owner_id: Mapped[str] = mapped_column(String(100), default="anonymous", nullable=False)
+    feasible: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    available_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    required_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    spare_minutes: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    feasibility_status: Mapped[str] = mapped_column(String(100), default="FEASIBLE", nullable=False)
+    route_geometry: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
 
     interests: Mapped[list] = mapped_column(JSON, default=list, nullable=False)
     status: Mapped[str] = mapped_column(String(50), default="upcoming", nullable=False)

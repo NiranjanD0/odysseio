@@ -258,6 +258,12 @@ export function AdventureMap({
     .filter((s) => s.status !== "skipped")
     .map((s) => [s.place.coordinates.lat, s.place.coordinates.lng]);
 
+  const hasRouteGeometry =
+    Boolean(itinerary.routeGeometry && itinerary.routeGeometry.length > 1);
+  const routeGeometryPositions: [number, number][] = hasRouteGeometry
+    ? (itinerary.routeGeometry ?? []).map((c) => [c.lat, c.lng])
+    : positions;
+
   const activeStop = itinerary.stops.find((s) => s.id === activeStopId);
   const distanceToActiveStop =
     userLocation && activeStop
@@ -271,9 +277,7 @@ export function AdventureMap({
 
   const handleFitAll = () => {
     if (!map) return;
-    const points: [number, number][] = itinerary.stops
-      .filter((s) => s.status !== "skipped")
-      .map((s) => [s.place.coordinates.lat, s.place.coordinates.lng]);
+    const points: [number, number][] = routeGeometryPositions.slice();
 
     if (userLocation) {
       points.push([userLocation.lat, userLocation.lng]);
@@ -397,11 +401,22 @@ export function AdventureMap({
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         />
-        {positions.length > 1 && (
+        {hasRouteGeometry ? (
           <Polyline
-            positions={positions}
-            pathOptions={{ color: "#315B48", weight: 3, opacity: 0.6, dashArray: "8 6" }}
+            positions={routeGeometryPositions}
+            pathOptions={{
+              color: "#315B48",
+              weight: 4,
+              opacity: 0.85,
+            }}
           />
+        ) : (
+          positions.length > 1 && (
+            <Polyline
+              positions={positions}
+              pathOptions={{ color: "#315B48", weight: 3, opacity: 0.6, dashArray: "8 6" }}
+            />
+          )
         )}
         {itinerary.stops
           .filter((s) => s.status !== "skipped")

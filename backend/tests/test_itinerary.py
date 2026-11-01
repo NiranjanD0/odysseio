@@ -103,3 +103,71 @@ async def test_empty_candidates_fails(async_client: AsyncClient):
         res = await async_client.post("/api/v1/itineraries", json=payload)
         assert res.status_code == 422
         assert "No places could be discovered" in res.json()["detail"]["message"]
+
+
+@pytest.mark.asyncio
+async def test_itinerary_feasibility_metrics_and_geometry(
+    async_client: AsyncClient, sample_places: list[Place]
+):
+    payload = {
+        "destination": "Paris",
+        "startLocation": "Hotel de Ville",
+        "startCoordinates": {"lat": 48.8566, "lng": 2.3522},
+        "startTime": "10:00",
+        "returnTime": "14:00",  # 240 min window
+        "safetyBufferMinutes": 20,
+        "interests": ["art", "cafe"],
+        "pace": "balanced",
+        "transport": "walking",
+    }
+    with (
+        patch.object(GeoapifyClient, "search_places", new_callable=AsyncMock) as mock_places,
+        patch(
+            "app.services.itinerary_service.get_routing_client", return_value=MockRoutingClient()
+        ),
+    ):
+        mock_places.return_value = sample_places
+        res = await async_client.post("/api/v1/itineraries", json=payload)
+        assert res.status_code == 201
+        data = res.json()
+        assert data["feasible"] is True
+        assert data["availableMinutes"] == 240
+        assert data["requiredMinutes"] > 0
+        assert data["spareMinutes"] == 240 - data["requiredMinutes"]
+        assert "FEASIBLE" in data["feasibilityStatus"]
+        assert isinstance(data["routeGeometry"], list)
+
+
+@pytest.mark.asyncio
+async def test_itinerary_selected_places_with_custom_duration(
+    async_client: AsyncClient, sample_places: list[Place]
+):
+    # Select specific places and assign custom visit times
+    chosen_ids = [sample_places[0].id, sample_places[1].id]
+    payload = {
+        "destination": "Paris",
+        "startLocation": "Hotel de Ville",
+        "startCoordinates": {"lat": 48.8566, "lng": 2.3522},
+        "startTime": "09:00",
+        "returnTime": "12:00",
+        "safetyBufferMinutes": 15,
+        "interests": ["art"],
+        "pace": "balanced",
+        "transport": "walking",
+        "selectedPlaceIds": chosen_ids,
+        "customVisitDurations": {chosen_ids[0]: 45, chosen_ids[1]: 35},
+    }
+    with (
+        patch.object(GeoapifyClient, "search_places", new_callable=AsyncMock) as mock_places,
+        patch(
+            "app.services.itinerary_service.get_routing_client", return_value=MockRoutingClient()
+        ),
+    ):
+        mock_places.return_value = sample_places
+        res = await async_client.post("/api/v1/itineraries", json=payload)
+        assert res.status_code == 201
+        data = res.json()
+        assert len(data["stops"]) == 2
+        assert data["stops"][0]["place"]["id"] == chosen_ids[0]
+        assert data["stops"][1]["place"]["id"] == chosen_ids[1]
+

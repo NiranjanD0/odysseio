@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import httpx
 
@@ -13,6 +13,7 @@ class RouteResult:
     duration_minutes: int
     mode: str
     provider: str
+    geometry: list[Coordinates] = field(default_factory=list)
 
 
 class RoutingClientBase:
@@ -57,6 +58,7 @@ class GeoapifyRoutingClient(RoutingClientBase):
             "waypoints": waypoints,
             "mode": mode,
             "apiKey": self.api_key,
+            "geometry": "geojson",
         }
 
         try:
@@ -81,16 +83,31 @@ class GeoapifyRoutingClient(RoutingClientBase):
             if not features:
                 raise RoutingException("No route found between coordinates.")
 
-            summary = features[0].get("properties", {}).get("summary", {})
+            feat = features[0]
+            summary = feat.get("properties", {}).get("summary", {})
             distance_meters = int(summary.get("distance", 0))
             duration_seconds = float(summary.get("duration", 0.0))
             duration_minutes = max(1, round(duration_seconds / 60))
+
+            geometry: list[Coordinates] = []
+            geom = feat.get("geometry", {})
+            raw_coords = geom.get("coordinates", [])
+            if geom.get("type") == "MultiLineString":
+                for line in raw_coords:
+                    for pt in line:
+                        if len(pt) >= 2:
+                            geometry.append(Coordinates(lat=float(pt[1]), lng=float(pt[0])))
+            elif geom.get("type") == "LineString":
+                for pt in raw_coords:
+                    if len(pt) >= 2:
+                        geometry.append(Coordinates(lat=float(pt[1]), lng=float(pt[0])))
 
             return RouteResult(
                 distance_meters=distance_meters,
                 duration_minutes=duration_minutes,
                 mode=mode,
                 provider="geoapify",
+                geometry=geometry,
             )
         except httpx.TimeoutException as e:
             raise RoutingException(f"Geoapify Routing timed out after {self.timeout}s.") from e
@@ -123,7 +140,7 @@ class OSRMRoutingClient(RoutingClientBase):
         profile = self.PROFILE_MAP.get(transport, "foot")
         coords = f"{origin.lng},{origin.lat};{destination.lng},{destination.lat}"
         url = f"{self.base_url}/route/v1/{profile}/{coords}"
-        params = {"overview": "false", "steps": "false"}
+        params = {"overview": "full", "geometries": "geojson", "steps": "false"}
 
         try:
             async with httpx.AsyncClient(timeout=self.timeout) as client:
@@ -144,11 +161,18 @@ class OSRMRoutingClient(RoutingClientBase):
             duration_seconds = float(first_route.get("duration", 0.0))
             duration_minutes = max(1, round(duration_seconds / 60))
 
+            geometry: list[Coordinates] = []
+            raw_coords = first_route.get("geometry", {}).get("coordinates", [])
+            for pt in raw_coords:
+                if len(pt) >= 2:
+                    geometry.append(Coordinates(lat=float(pt[1]), lng=float(pt[0])))
+
             return RouteResult(
                 distance_meters=distance_meters,
                 duration_minutes=duration_minutes,
                 mode=profile,
                 provider="osrm",
+                geometry=geometry,
             )
         except httpx.TimeoutException as e:
             raise RoutingException(f"OSRM routing timed out after {self.timeout}s.") from e
@@ -158,8 +182,22 @@ class OSRMRoutingClient(RoutingClientBase):
 
 def get_routing_client() -> RoutingClientBase:
     """Returns the configured routing client.
-    Prioritizes Geoapify if API key is set; otherwise uses real public OSRM router.
+    Prioritizes OpenRouteService if API key configured; then Geoapify; otherwise uses OSRM.
     """
+    if settings.OPENROUTESERVICE_API_KEY and settings.ROUTING_PROVIDER == "ors":
+        from app.integrations.ors import OpenRouteServiceClient
+
+        return OpenRouteServiceClient(timeout=settings.ROUTING_TIMEOUT_SECONDS)  # type: ignore
+
     if settings.GEOAPIFY_API_KEY and settings.ROUTING_PROVIDER == "geoapify":
         return GeoapifyRoutingClient(timeout=settings.ROUTING_TIMEOUT_SECONDS)
+
+    if settings.OPENROUTESERVICE_API_KEY:
+        from app.integrations.ors import OpenRouteServiceClient
+
+        return OpenRouteServiceClient(timeout=settings.ROUTING_TIMEOUT_SECONDS)  # type: ignore
+
+    if settings.GEOAPIFY_API_KEY:
+        return GeoapifyRoutingClient(timeout=settings.ROUTING_TIMEOUT_SECONDS)
+
     return OSRMRoutingClient(timeout=settings.ROUTING_TIMEOUT_SECONDS)

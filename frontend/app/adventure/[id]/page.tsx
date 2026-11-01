@@ -260,6 +260,23 @@ function AdventureContent() {
               </div>
             )}
 
+            {itinerary.feasibilityStatus && (
+              <span
+                className={`inline-flex items-center gap-1 text-xs font-semibold px-2.5 py-1 rounded-full border ${
+                  itinerary.feasible !== false
+                    ? "bg-emerald-50 text-emerald-800 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-300"
+                    : "bg-red-50 text-red-800 border-red-200 dark:bg-red-950/50 dark:text-red-300"
+                }`}
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    itinerary.feasible !== false ? "bg-emerald-500" : "bg-red-500 animate-pulse"
+                  }`}
+                />
+                {itinerary.feasibilityStatus}
+              </span>
+            )}
+
             <button
               onClick={() => setShowDeadlineModal(true)}
               className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
@@ -354,7 +371,7 @@ function AdventureContent() {
               mobileTab === "list" ? "flex" : "hidden"
             } md:flex md:w-96 flex-col border-l border-border-theme bg-cream`}
           >
-            <div className="px-4 py-3 bg-white border-b border-border-theme space-y-1">
+            <div className="px-4 py-3 bg-white border-b border-border-theme space-y-1.5">
               <div className="flex justify-between items-center text-xs">
                 <span className="text-text-muted">
                   Start: <strong>{formatTime(itinerary.startTime)}</strong>
@@ -366,6 +383,11 @@ function AdventureContent() {
               <div className="flex justify-between items-center text-xs text-text-muted">
                 <span>{itinerary.safetyBufferMinutes}m safety buffer</span>
                 <span>Pace: {itinerary.pace} ({itinerary.transport})</span>
+              </div>
+              <div className="pt-1 border-t border-border-theme/60 flex items-center justify-between text-[11px] text-text-muted">
+                <span>Travel: <strong className="text-text">{itinerary.travelMinutes}m</strong></span>
+                <span>Visits: <strong className="text-text">{itinerary.explorationMinutes}m</strong></span>
+                <span>Buffer: <strong className="text-text">{itinerary.safetyBufferMinutes}m</strong></span>
               </div>
             </div>
 

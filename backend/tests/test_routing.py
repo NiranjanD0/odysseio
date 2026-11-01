@@ -4,6 +4,7 @@ import httpx
 import pytest
 
 from app.core.errors import RoutingException
+from app.integrations.ors import OpenRouteServiceClient
 from app.integrations.routing import (
     GeoapifyRoutingClient,
     OSRMRoutingClient,
@@ -97,3 +98,59 @@ async def test_routing_failure_never_silent():
         mock_get.return_value = mock_resp
         with pytest.raises(RoutingException):
             await client.calculate_route(origin, dest)
+
+
+@pytest.mark.asyncio
+async def test_ors_routing_success():
+    client = OpenRouteServiceClient(api_key="valid-ors-key")
+    origin = Coordinates(lat=48.8566, lng=2.3522)
+    dest = Coordinates(lat=48.8606, lng=2.3376)
+
+    mock_resp = httpx.Response(
+        status_code=200,
+        json={
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "LineString",
+                        "coordinates": [
+                            [2.3522, 48.8566],
+                            [2.3450, 48.8580],
+                            [2.3376, 48.8606],
+                        ],
+                    },
+                    "properties": {
+                        "summary": {
+                            "distance": 1520.0,
+                            "duration": 1140.0,  # 19 min
+                        }
+                    },
+                }
+            ],
+        },
+        request=httpx.Request("POST", "https://api.openrouteservice.org"),
+    )
+
+    with patch("httpx.AsyncClient.post", new_callable=AsyncMock) as mock_post:
+        mock_post.return_value = mock_resp
+        route = await client.calculate_route(origin, dest, transport="walking")
+        assert route.distance_meters == 1520
+        assert route.duration_minutes == 19
+        assert route.mode == "foot-walking"
+        assert route.provider == "openrouteservice"
+        assert len(route.geometry) == 3
+        assert route.geometry[0].lat == 48.8566
+        assert route.geometry[0].lng == 2.3522
+
+
+@pytest.mark.asyncio
+async def test_ors_routing_unconfigured_key():
+    client = OpenRouteServiceClient(api_key="")
+    origin = Coordinates(lat=48.8566, lng=2.3522)
+    dest = Coordinates(lat=48.8606, lng=2.3376)
+    with pytest.raises(RoutingException) as exc:
+        await client.calculate_route(origin, dest)
+    assert "key not configured" in str(exc.value)
+
